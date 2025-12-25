@@ -372,6 +372,7 @@
 				<?php 
 require_once '../SQL/Database.php';
 
+
 $conn=Database::getInstance()->getConnection();
 
 $stmt = $conn->prepare("SELECT * FROM categories limit 3");
@@ -387,7 +388,7 @@ foreach ($results as $row)
 				<div class="col-md-6 col-xl-4 p-b-30 m-lr-auto">
 					<!-- Block1 -->
 					<div class="block1 wrap-pic-w">
-						<img src="images/banner-01.jpg" alt="IMG-BANNER">
+						<img src="images/banner-0<?php echo $row['categories_id']; ?>.jpg" alt="IMG-BANNER">
 
 						<a href="product.html" class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
 							<div class="block1-txt-child1 flex-col-l">
@@ -442,13 +443,25 @@ foreach ($categories as $cat)
 {
 
 				?>
-				<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" type="submit" name="id" value="<?php echo $cat['categories_id'] ?>"  >
-						<?php echo $cat['categories_name']; ?>
-					</button>
+				<button 
+  class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 category-btn"
+  type="button"
+  data-id="<?= $cat['categories_id'] ?>">
+  <?= $cat['categories_name'] ?>
+</button>
+
 				
 				<?php }?>
-				
+	
+
+
+					</form>
+
+			
+			
 <?php 
+
+
 
 
 $category_id=$_GET['id']??0;
@@ -471,12 +484,7 @@ $products=$result->fetch_all(MYSQLI_ASSOC);
 
 
 
-?>
-
-
-					</form>
-
-					
+?>	
 				</div>
 
 				<div class="flex-w flex-c-m m-tb-10">
