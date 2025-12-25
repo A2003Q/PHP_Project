@@ -36,47 +36,55 @@
                 <div class="card-body p-4">
                     <h3 class="text-center auth-title mb-4">Create Account</h3>
 
-                    <form method="POST" action="signup.php">
-                        <div class="row">
-                  <div class="col-md-6 mb-3">
-    <label class="form-label">First Name</label>
-    <input type="text" class="form-control" id="username" required>
-    <div class="invalid-feedback"></div>
+               <form method="POST" action="sign-up-processing.php" id="signupForm">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label">First Name</label>
+        <input type="text" class="form-control" id="firstname" name="firstname" required>
+        <div class="invalid-feedback"></div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Last Name</label>
+        <input type="text" class="form-control" id="lastname" name="lastname" required>
+        <div class="invalid-feedback"></div>
+    </div>
 </div>
 
-<div class="col-md-6 mb-3">
-    <label class="form-label">Last Name</label>
-    <input type="text" class="form-control" id="lastname" required>
-    <div class="invalid-feedback"></div>
-</div>
-</div>
 <div class="mb-3">
     <label class="form-label">Email</label>
-    <input type="email" class="form-control" id="email" placeholder="you@example.com" required>
+    <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
     <div class="invalid-feedback"></div>
 </div>
 
 <div class="mb-3">
     <label class="form-label">Password</label>
-    <input type="password" class="form-control" id="password" placeholder="Minimum 8 characters" required>
+    <input type="password" class="form-control" id="password" name="password" placeholder="Minimum 8 characters" required>
     <div class="invalid-feedback"></div>
 </div>
 
 <div class="mb-3">
     <label class="form-label">Confirm Password</label>
-    <input type="password" class="form-control" id="retype_password" required>
+    <input type="password" class="form-control" id="retype_password" name="retypepassword" required>
     <div class="invalid-feedback"></div>
 </div>
 
-                        <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-main">Sign Up</button>
-                        </div>
+<div class="mb-3">
+    <label class="form-label">Phone Number</label>
+    <input type="text" class="form-control" id="phone" name="phone" required>
+    <div class="invalid-feedback"></div>
+</div>
 
-                        <p class="text-center mb-0">
-                            Already have an account?
-                            <a href="login.php">Login</a>
-                        </p>
-                    </form>
+    <div class="d-grid mb-3">
+        <button type="submit" class="btn btn-main" name="signup">Sign Up</button>
+    </div>
+
+    <p class="text-center mb-0">
+        Already have an account?
+        <a href="login.php">Login</a>
+    </p>
+</form>
+
 
                 </div>
             </div>
@@ -84,6 +92,10 @@
     </div>
 </div>
 <script src="sign-up.js"></script>
+
+
+
+<?php ?>
 
 </body>
 </html>
