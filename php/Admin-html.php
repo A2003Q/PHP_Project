@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <style>
         body {
-            background: linear-gradient(135deg, #988d76ff, #6f4818ff);
+            background: linear-gradient(135deg, #988d76ff, #4f3131);
             font-family: 'Poppins', sans-serif;
         }
         .profile-card {
@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .profile-icon {
             width: 90px;
             height: 90px;
-            background: #764ba2;
+            background:#4f3131;
             color: #fff;
             border-radius: 50%;
             display: flex;
@@ -77,27 +77,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             margin: auto;
         }
         .btn-edit {
-            background: #764ba2;
+            background: #4f3131;
             color: #fff;
         }
         .btn-edit:hover {
-            background: #5a3b91;
+            background: #000000ff;
         }
     </style>
 </head>
-    <?php if (isset($success) && $success): ?>
-<script>
-Swal.fire({
-    icon: 'success',
-    title: 'Saved Successfully!',
-    text: 'Your profile has been updated.',
-    confirmButtonColor: '#764ba2'
-}).then(() => {
-    window.location.href = "PHP_project/admin_dashboard/startbootstrap-sb-admin-2-gh-pages/admin.html"
 
-});
-</script>
-<?php endif; ?>
 <body>
 
 <div class="profile-card text-center">
@@ -161,9 +149,9 @@ Swal.fire({
     icon: 'success',
     title: 'Saved Successfully!',
     text: 'Your profile has been updated.',
-    confirmButtonColor: '#764ba2'
+    confirmButtonColor: '#4f3131'
 }).then(() => {
-    window.location.href = "/PHP_project/admin_dashboard/startbootstrap-sb-admin-2-gh-pages/admin.html";
+    window.location.href = "admin_dashbored.php";
 });
 </script>
 <?php endif; ?>
