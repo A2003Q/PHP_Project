@@ -55,13 +55,20 @@ $products = $productsClass->getAllProducts();
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+ 
 <!-- ✅ REQUIRED -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+
 </head>
+<body>
+       <div id="wrapper">
+    <?php include "../php/sidebar.php"; ?>
 
-<body class="p-4">
+   
+</div>
 
+<div class="container mt-4">
 <h2>Product Management</h2>
 
 <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
@@ -74,7 +81,8 @@ $products = $productsClass->getAllProducts();
 <th>ID</th>
 <th>Name</th>
 <th>Price</th>
-<th>Qty</th>
+<th>Quantity</th>
+<th>Description</th>
 <th>Discount</th>
 <th>Actions</th>
 </tr>
@@ -87,6 +95,7 @@ $products = $productsClass->getAllProducts();
 <td><?= htmlspecialchars($p['product_name']) ?></td>
 <td>$<?= $p['product_price'] ?></td>
 <td><?= $p['product_quantity'] ?></td>
+<td><?= $p['product_description'] ?></td>
 <td><?= $p['product_discount'] ?>%</td>
 <td>
 

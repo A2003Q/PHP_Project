@@ -47,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['username']  = $user['user_name'];
     $_SESSION['role']      = $user['user_role'];
     $_SESSION['logged_in'] = true;
-    if ($_SESSION['role'] === 'admin') {
-    header("Location: ../../admin_dashboard/startbootstrap-sb-admin-2-gh-pages/admin.html");
+    if ($_SESSION['role'] === 'Admin') {
+    header("Location: ../../php/admin_dashbored.php");
 } else {
     header("Location: ../index.php");
     
