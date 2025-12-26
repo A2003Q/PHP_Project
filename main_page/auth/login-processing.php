@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($_SESSION['role'] === 'admin') {
     header("Location: ../../admin_dashboard/startbootstrap-sb-admin-2-gh-pages/admin.html");
 } else {
-    header("Location: ../index.html");
+    header("Location: ../index.php");
     
 }
 
