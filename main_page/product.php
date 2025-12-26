@@ -86,6 +86,52 @@ $stmt->execute();
 $result   = $stmt->get_result();
 $products = $result->fetch_all(MYSQLI_ASSOC);
 ?>
+
+
+
+
+<?php 
+
+$sizes = [];
+$colors = [];
+
+					$variant_id = (int)($_GET['variantid'] ?? 0);
+					if($variant_id > 0) {
+					$stmt = $conn->prepare("SELECT 
+    p.product_id,
+    p.product_name,
+    p.product_price,
+    p.product_description,
+    p.product_quantity,
+    v.size,
+    v.color
+FROM products p
+JOIN product_variant v ON p.product_id = v.product_id
+WHERE p.product_id = ?");
+if(!$stmt){
+	die("Prepare failed: " . $conn->error);
+}
+$stmt->bind_param("i", $variant_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$variants = $result->fetch_all(MYSQLI_ASSOC);
+if (empty($variants)) {
+    die("Product not found");
+}
+
+
+$variant = $variants[0]; 
+foreach ($variants as $row) {
+    $sizes[] = $row['size'];
+    $colors[] = $row['color'];
+}
+$sizes = array_unique($sizes);
+$colors = array_unique($colors);
+
+					}
+					
+
+					?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -656,7 +702,7 @@ foreach ($categories as $cat): ?>
                 <div class="block2-pic hov-img0">
                     <img src="images/banner-01.jpg" alt="IMG-PRODUCT">
 
-                    <a href="product-detail.php?id=<?php echo $prod['product_id']; ?>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
+                    <a href="?variantid=<?php echo $prod['product_id']; ?>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
                         Quick View
                     </a>
                 </div>
@@ -901,17 +947,21 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 					</div>
 					
 					<div class="col-md-6 col-lg-5 p-b-30">
+						<?php 
+						
+						
+						?>
 						<div class="p-r-50 p-t-5 p-lr-0-lg">
 							<h4 class="mtext-105 cl2 js-name-detail p-b-14">
-								Lightweight Jacket
+								<?php echo htmlspecialchars($variant['product_name']); ?>
 							</h4>
 
 							<span class="mtext-106 cl2">
-								$58.79
+								$<?php echo htmlspecialchars($variant['product_price']); ?>
 							</span>
 
 							<p class="stext-102 cl3 p-t-23">
-								Nulla eget sem vitae eros pharetra viverra. Nam vitae luctus ligula. Mauris consequat ornare feugiat.
+								<?php echo htmlspecialchars($variant['product_description']); ?>
 							</p>
 							
 							<!--  -->
@@ -923,12 +973,10 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
 									<div class="size-204 respon6-next">
 										<div class="rs1-select2 bor8 bg0">
-											<select class="js-select2" name="time">
-												<option>Choose an option</option>
-												<option>Size S</option>
-												<option>Size M</option>
-												<option>Size L</option>
-												<option>Size XL</option>
+											<select class="js-select2" name="size">
+												<?php foreach ($sizes as $size): ?>
+													<option><?php echo htmlspecialchars($size); ?></option>
+												<?php endforeach; ?>
 											</select>
 											<div class="dropDownSelect2"></div>
 										</div>
@@ -942,12 +990,11 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 
 									<div class="size-204 respon6-next">
 										<div class="rs1-select2 bor8 bg0">
-											<select class="js-select2" name="time">
+											<select class="js-select2" name="color">
 												<option>Choose an option</option>
-												<option>Red</option>
-												<option>Blue</option>
-												<option>White</option>
-												<option>Grey</option>
+												<?php foreach ($colors as $color): ?>
+													<option><?php echo htmlspecialchars($color); ?></option>
+												<?php endforeach; ?>
 											</select>
 											<div class="dropDownSelect2"></div>
 										</div>
