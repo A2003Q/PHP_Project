@@ -52,22 +52,37 @@ $users = $usersClass->getAllUsers();
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+.page-header { background-color: #4f3131; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }
+.table thead { background-color: #4f3131; color: white; }
+.btn-primary { background-color: #4f3131; border: none; }
+.btn-primary:hover { background-color: #3e2626; }
+.card { border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.08); }
 
+</style>
 </head>
 <body>
     <div id="wrapper">
     <?php include "../php/sidebar.php"; ?>
+</div>
+
 
    
+<div id="content">
+<div class="page-header">
+    <h3>User Management</h3>
 </div>
-    <div class="container mt-4">
-<h2>User Management</h2>
+
+
+
+
 
 
 <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
     <i class="fa fa-plus"></i> Add User
 </button>
 
+<div class="card p-3">
 <table class="table table-bordered">
 <thead class="table-dark">
 <tr>

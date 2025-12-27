@@ -14,20 +14,30 @@ class Orders extends CRUD {
         $sql = "SELECT * FROM orders WHERE order_id=$id";
         return $this->read($sql);
     }
+   public function getOrderDetails($order_id) {
 
-    public function addOrder($user_id, $product_id, $quantity) {
-        $sql = "INSERT INTO orders (user_id, product_id, quantity) VALUES ($user_id, $product_id, $quantity)";
-        return $this->create($sql);
-    }
+   $sql = "
+SELECT 
+    od.order_details_id,
+    od.price_atpurchase,
+    ci.cart_items_id AS cart_items_id,
+    ci.cart_items_quantity,
+    v.variant_id,
+    v.size,
+    v.color,
+    p.product_id,
+    p.product_name
+FROM orders o
+JOIN order_details od ON od.order_id = o.order_id
+JOIN cart_items ci ON ci.cart_id = o.cart_id
+JOIN product_variant v ON v.variant_id = ci.variant_id
+JOIN products p ON p.product_id = v.product_id
+WHERE o.order_id = $order_id
+";
 
-    public function updateOrder($id, $user_id, $product_id, $quantity) {
-        $sql = "UPDATE orders SET user_id=$user_id, product_id=$product_id, quantity=$quantity WHERE order_id=$id";
-        return $this->update($sql);
-    }
 
-    public function deleteOrder($id) {
-        $sql = "DELETE FROM orders WHERE order_id=$id";
-        return $this->delete($sql);
-    }
+    return $this->read($sql);
+}
+
 }
 ?>

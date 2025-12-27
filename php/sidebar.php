@@ -62,7 +62,7 @@ if (!isset($_SESSION['user_id'])) {
     <!-- Sidebar -->
     <ul class="sidebar navbar-nav">
         <!-- Brand -->
-        <a class="sidebar-brand" href="#">
+        <a class="sidebar-brand" href="admin_dashbored.php">
             <i class="fa-solid fa-user-shield me-2"></i>
             Admin Dashboard
         </a>
@@ -97,7 +97,7 @@ if (!isset($_SESSION['user_id'])) {
 
 <!-- Orders Management -->
 <li class="nav-item">
-    <a class="nav-link" href="orders.php">
+    <a class="nav-link" href="orders-html.php">
         <i class="fa-solid fa-cart-shopping me-2"></i>
         <span>Orders</span>
     </a>
@@ -105,9 +105,16 @@ if (!isset($_SESSION['user_id'])) {
 
 <!-- Categories Management -->
 <li class="nav-item">
-    <a class="nav-link" href="categories.php">
+    <a class="nav-link" href="categories-html.php">
         <i class="fa-solid fa-tags me-2"></i>
         <span>Categories</span>
+    </a>
+</li>
+<!-- FeedBack Management -->
+<li class="nav-item">
+    <a class="nav-link" href="feedback-html.php">
+        <i class="fa-solid fa-comment"></i>
+        <span>FeedBack</span>
     </a>
 </li>
 

@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <style>
         body {
-            background: linear-gradient(135deg, #988d76ff, #4f3131);
+            background: linear-gradient(135deg, #686868ff, #4f3131);
             font-family: 'Poppins', sans-serif;
         }
         .profile-card {

@@ -10,22 +10,25 @@ class Categories extends CRUD {
     }
 
     public function getCategoryById($id) {
-        $sql = "SELECT * FROM categories WHERE category_id=$id";
+        $sql = "SELECT * FROM categories WHERE categories_id=$id";
         return $this->read($sql);
     }
 
-    public function addCategory($name) {
-        $sql = "INSERT INTO categories (category_name) VALUES ('$name')";
+    public function addCategory($name, $description, $picture ) {
+        $sql = "INSERT INTO 
+        categories (categories_name,categories_description ,categories_picture) VALUES ('$name', '$description', '$picture')";
+
         return $this->create($sql);
     }
 
-    public function updateCategory($id, $name) {
-        $sql = "UPDATE categories SET category_name='$name' WHERE category_id=$id";
+    public function updateCategory($id, $name, $description, $picture) {
+        $sql = "UPDATE categories SET categories_name='$name', categories_description='$description', categories_picture='$picture'
+         WHERE categories_id=$id";
         return $this->update($sql);
     }
 
     public function deleteCategory($id) {
-        $sql = "DELETE FROM categories WHERE category_id=$id";
+        $sql = "DELETE FROM categories WHERE categories_id=$id";
         return $this->delete($sql);
     }
 }
