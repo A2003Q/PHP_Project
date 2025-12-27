@@ -1,3 +1,138 @@
+<?php
+require_once '../SQL/database.php';
+$conn = Database::getInstance()->getConnection();
+session_start();
+if($_SERVER['REQUEST_METHOD'] === 'POST') {
+$product_id = (int)($_POST['product_id'] ?? 0);
+$quantity   = max(1, (int)($_POST['quantity'] ?? 1));
+$size       = trim($_POST['size'] ?? '');
+$color      = trim($_POST['color'] ?? '');
+
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+    echo '<script>
+        Swal.fire({
+            icon: "warning",
+            title: "Login Required",
+            text: "You must log in first",
+            showConfirmButton: true
+        }).then(() => {
+            window.location.href = "auth/login.php";
+        });
+    </script>';
+    exit;
+}
+
+$user_id = $_SESSION['user_id'] ?? null;
+
+if ($product_id <= 0 || $size === '' || $color === '') {
+    echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+    echo '<script>
+        Swal.fire({
+            icon: "error",
+            title: "Invalid Input",
+            text: "Please select size, color, and quantity",
+            showConfirmButton: true
+        }).then(() => {
+            window.history.back();
+        });
+    </script>';
+    exit;
+}
+
+$stmt = $conn->prepare("SELECT cart_id FROM cart WHERE user_id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($row = $result->fetch_assoc()) {
+    $cart_id = $row['cart_id'];
+} else {
+    $stmt = $conn->prepare("INSERT INTO cart (user_id) VALUES (?)");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $cart_id = $conn->insert_id;
+}
+
+$stmt = $conn->prepare("SELECT variant_id FROM product_variant WHERE product_id = ? AND size = ? AND color = ?");
+$stmt->bind_param("iss", $product_id, $size, $color);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($row = $result->fetch_assoc()) {
+    $variant_id = $row['variant_id'];
+} else {
+    echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+    echo '<script>
+        Swal.fire({
+            icon: "error",
+            title: "Variant Not Found",
+            text: "Selected variant does not exist",
+            showConfirmButton: true
+        }).then(() => {
+            window.history.back();
+        });
+    </script>';
+    exit;
+}
+
+$stmt = $conn->prepare("SELECT cart_items_id, cart_items_quantity FROM cart_items WHERE cart_id = ? AND variant_id = ?");
+$stmt->bind_param("ii", $cart_id, $variant_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($row = $result->fetch_assoc()) {
+    $newQty = $row['cart_items_quantity'] + $quantity;
+    $stmt = $conn->prepare("UPDATE cart_items SET cart_items_quantity = ? WHERE cart_items_id = ?");
+    $stmt->bind_param("ii", $newQty, $row['cart_items_id']);
+    $stmt->execute();
+	
+} else {
+    $stmt = $conn->prepare("INSERT INTO cart_items (cart_id, variant_id, cart_items_quantity) VALUES (?, ?, ?)");
+    $stmt->bind_param("iii", $cart_id, $variant_id, $quantity);
+    $stmt->execute();
+}
+
+
+echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+echo '<script>
+    Swal.fire({
+        icon: "success",
+        title: "Added to Cart",
+        text: "Product has been added to your cart",
+        showConfirmButton: true
+    }).then(() => {
+       location.href = "shoping-cart.php";
+    });
+</script>';}
+$stmt = $conn->prepare("SELECT 
+ci.cart_id,
+    ci.cart_items_id,
+    p.product_id,
+    p.product_name,
+    p.product_price,
+    pi.image_url,
+    v.size,
+    v.color,
+    ci.cart_items_quantity
+FROM cart_items ci
+JOIN cart c ON ci.cart_id = c.cart_id
+JOIN product_variant v ON ci.variant_id = v.variant_id
+JOIN products p ON v.product_id = p.product_id
+LEFT JOIN product_images pi ON p.product_id = pi.product_id
+WHERE c.user_id = ?
+GROUP BY ci.cart_items_id
+");
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$cartItems = [];
+while ($row = $result->fetch_assoc()) {
+	$cartItems[] = $row;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,293 +167,10 @@
 <body class="animsition">
 	
 	<!-- Header -->
-	<header class="header-v4">
-		<!-- Header desktop -->
-		<div class="container-menu-desktop">
-			<!-- Topbar -->
-			<div class="top-bar">
-				<div class="content-topbar flex-sb-m h-full container">
-					<div class="left-top-bar">
-						Free shipping for standard order over $100
-					</div>
-
-					<div class="right-top-bar flex-w h-full">
-						<a href="#" class="flex-c-m trans-04 p-lr-25">
-							Help & FAQs
-						</a>
-
-						<a href="#" class="flex-c-m trans-04 p-lr-25">
-							My Account
-						</a>
-
-						<a href="#" class="flex-c-m trans-04 p-lr-25">
-							EN
-						</a>
-
-						<a href="#" class="flex-c-m trans-04 p-lr-25">
-							USD
-						</a>
-					</div>
-				</div>
-			</div>
-
-			<div class="wrap-menu-desktop how-shadow1">
-				<nav class="limiter-menu-desktop container">
-					
-					<!-- Logo desktop -->		
-					<a href="#" class="logo">
-						<img src="images/icons/logo-01.png" alt="IMG-LOGO">
-					</a>
-
-					<!-- Menu desktop -->
-					<div class="menu-desktop">
-						<ul class="main-menu">
-							<li>
-								<a href="index.html">Home</a>
-								<ul class="sub-menu">
-									<li><a href="index.html">Homepage 1</a></li>
-									<li><a href="home-02.html">Homepage 2</a></li>
-									<li><a href="home-03.html">Homepage 3</a></li>
-								</ul>
-							</li>
-
-							<li>
-								<a href="product.html">Shop</a>
-							</li>
-
-							<li class="label1" data-label1="hot">
-								<a href="shoping-cart.html">Features</a>
-							</li>
-
-							<li>
-								<a href="blog.html">Blog</a>
-							</li>
-
-							<li>
-								<a href="about.html">About</a>
-							</li>
-
-							<li>
-								<a href="contact.html">Contact</a>
-							</li>
-						</ul>
-					</div>	
-
-					<!-- Icon header -->
-					<div class="wrap-icon-header flex-w flex-r-m">
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-modal-search">
-							<i class="zmdi zmdi-search"></i>
-						</div>
-
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="2">
-							<i class="zmdi zmdi-shopping-cart"></i>
-						</div>
-
-						<a href="#" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" data-notify="0">
-							<i class="zmdi zmdi-favorite-outline"></i>
-						</a>
-					</div>
-				</nav>
-			</div>	
-		</div>
-
-		<!-- Header Mobile -->
-		<div class="wrap-header-mobile">
-			<!-- Logo moblie -->		
-			<div class="logo-mobile">
-				<a href="index.html"><img src="images/icons/logo-01.png" alt="IMG-LOGO"></a>
-			</div>
-
-			<!-- Icon header -->
-			<div class="wrap-icon-header flex-w flex-r-m m-r-15">
-				<div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 js-show-modal-search">
-					<i class="zmdi zmdi-search"></i>
-				</div>
-
-				<div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti js-show-cart" data-notify="2">
-					<i class="zmdi zmdi-shopping-cart"></i>
-				</div>
-
-				<a href="#" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti" data-notify="0">
-					<i class="zmdi zmdi-favorite-outline"></i>
-				</a>
-			</div>
-
-			<!-- Button show menu -->
-			<div class="btn-show-menu-mobile hamburger hamburger--squeeze">
-				<span class="hamburger-box">
-					<span class="hamburger-inner"></span>
-				</span>
-			</div>
-		</div>
-
-
-		<!-- Menu Mobile -->
-		<div class="menu-mobile">
-			<ul class="topbar-mobile">
-				<li>
-					<div class="left-top-bar">
-						Free shipping for standard order over $100
-					</div>
-				</li>
-
-				<li>
-					<div class="right-top-bar flex-w h-full">
-						<a href="#" class="flex-c-m p-lr-10 trans-04">
-							Help & FAQs
-						</a>
-
-						<a href="#" class="flex-c-m p-lr-10 trans-04">
-							My Account
-						</a>
-
-						<a href="#" class="flex-c-m p-lr-10 trans-04">
-							EN
-						</a>
-
-						<a href="#" class="flex-c-m p-lr-10 trans-04">
-							USD
-						</a>
-					</div>
-				</li>
-			</ul>
-
-			<ul class="main-menu-m">
-				<li>
-					<a href="index.html">Home</a>
-					<ul class="sub-menu-m">
-						<li><a href="index.html">Homepage 1</a></li>
-						<li><a href="home-02.html">Homepage 2</a></li>
-						<li><a href="home-03.html">Homepage 3</a></li>
-					</ul>
-					<span class="arrow-main-menu-m">
-						<i class="fa fa-angle-right" aria-hidden="true"></i>
-					</span>
-				</li>
-
-				<li>
-					<a href="product.html">Shop</a>
-				</li>
-
-				<li>
-					<a href="shoping-cart.html" class="label1 rs1" data-label1="hot">Features</a>
-				</li>
-
-				<li>
-					<a href="blog.html">Blog</a>
-				</li>
-
-				<li>
-					<a href="about.html">About</a>
-				</li>
-
-				<li>
-					<a href="contact.html">Contact</a>
-				</li>
-			</ul>
-		</div>
-
-		<!-- Modal Search -->
-		<div class="modal-search-header flex-c-m trans-04 js-hide-modal-search">
-			<div class="container-search-header">
-				<button class="flex-c-m btn-hide-modal-search trans-04 js-hide-modal-search">
-					<img src="images/icons/icon-close2.png" alt="CLOSE">
-				</button>
-
-				<form class="wrap-search-header flex-w p-l-15">
-					<button class="flex-c-m trans-04">
-						<i class="zmdi zmdi-search"></i>
-					</button>
-					<input class="plh3" type="text" name="search" placeholder="Search...">
-				</form>
-			</div>
-		</div>
-	</header>
+	<?php include 'header-main.php'; ?>
 
 	<!-- Cart -->
-	<div class="wrap-header-cart js-panel-cart">
-		<div class="s-full js-hide-cart"></div>
-
-		<div class="header-cart flex-col-l p-l-65 p-r-25">
-			<div class="header-cart-title flex-w flex-sb-m p-b-8">
-				<span class="mtext-103 cl2">
-					Your Cart
-				</span>
-
-				<div class="fs-35 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-cart">
-					<i class="zmdi zmdi-close"></i>
-				</div>
-			</div>
-			
-			<div class="header-cart-content flex-w js-pscroll">
-				<ul class="header-cart-wrapitem w-full">
-					<li class="header-cart-item flex-w flex-t m-b-12">
-						<div class="header-cart-item-img">
-							<img src="images/item-cart-01.jpg" alt="IMG">
-						</div>
-
-						<div class="header-cart-item-txt p-t-8">
-							<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-								White Shirt Pleat
-							</a>
-
-							<span class="header-cart-item-info">
-								1 x $19.00
-							</span>
-						</div>
-					</li>
-
-					<li class="header-cart-item flex-w flex-t m-b-12">
-						<div class="header-cart-item-img">
-							<img src="images/item-cart-02.jpg" alt="IMG">
-						</div>
-
-						<div class="header-cart-item-txt p-t-8">
-							<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-								Converse All Star
-							</a>
-
-							<span class="header-cart-item-info">
-								1 x $39.00
-							</span>
-						</div>
-					</li>
-
-					<li class="header-cart-item flex-w flex-t m-b-12">
-						<div class="header-cart-item-img">
-							<img src="images/item-cart-03.jpg" alt="IMG">
-						</div>
-
-						<div class="header-cart-item-txt p-t-8">
-							<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-								Nixon Porter Leather
-							</a>
-
-							<span class="header-cart-item-info">
-								1 x $17.00
-							</span>
-						</div>
-					</li>
-				</ul>
-				
-				<div class="w-full">
-					<div class="header-cart-total w-full p-tb-40">
-						Total: $75.00
-					</div>
-
-					<div class="header-cart-buttons flex-w w-full">
-						<a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
-							View Cart
-						</a>
-
-						<a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
-							Check Out
-						</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	
 
 
 	<!-- breadcrumb -->
@@ -337,7 +189,7 @@
 		
 
 	<!-- Shoping Cart -->
-	<form class="bg0 p-t-75 p-b-85">
+	<form class="bg0 p-t-75 p-b-85" action="update-cart.php" method="post" >
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
@@ -352,30 +204,33 @@
 									<th class="column-5">Total</th>
 								</tr>
 
+	
+		<?php foreach ($cartItems as $item): ?>
 								<tr class="table_row">
 									<td class="column-1">
 										<div class="how-itemcart1">
-											<img src="images/item-cart-04.jpg" alt="IMG">
+											<img src="<?php echo htmlspecialchars($item['image_url']); ?>" alt="IMG">
 										</div>
 									</td>
-									<td class="column-2">Fresh Strawberries</td>
-									<td class="column-3">$ 36.00</td>
+									<td class="column-2"><?php echo htmlspecialchars($item['product_name']); ?></td>
+									<td class="column-3">$ <?php echo number_format($item['product_price'], 2); ?></td>
 									<td class="column-4">
 										<div class="wrap-num-product flex-w m-l-auto m-r-0">
 											<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
 												<i class="fs-16 zmdi zmdi-minus"></i>
 											</div>
 
-											<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product1" value="1">
+											<input class="mtext-104 cl3 txt-center num-product" type="number" name="quantity[]" value="<?php echo htmlspecialchars($item['cart_items_quantity']); ?>">
+    <input type="hidden" name="cart_items_id[]" value="<?= $item['cart_items_id'] ?>">
 
 											<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
 												<i class="fs-16 zmdi zmdi-plus"></i>
 											</div>
 										</div>
 									</td>
-									<td class="column-5">$ 36.00</td>
+									<td class="column-5">$ <?php echo number_format($item['product_price'] * $item['cart_items_quantity'], 2); ?></td>
 								</tr>
-
+<?php endforeach; ?>
 								<tr class="table_row">
 									<td class="column-1">
 										<div class="how-itemcart1">
@@ -412,98 +267,122 @@
 							</div>
 
 							<div class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
-								Update Cart
+								
+    <button type="submit" style="background:none; border:none; color:black; cursor:pointer; padding:0; font:inherit;">
+        Update Cart
+    </button>
+
 							</div>
 						</div>
 					</div>
 				</div>
+			</form>
 
 				<div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-					<div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
-						<h4 class="mtext-109 cl2 p-b-30">
-							Cart Totals
-						</h4>
+					<form action="process_checkout.php" method="POST" >
 
-						<div class="flex-w flex-t bor12 p-b-13">
-							<div class="size-208">
-								<span class="stext-110 cl2">
-									Subtotal:
-								</span>
-							</div>
 
-							<div class="size-209">
-								<span class="mtext-110 cl2">
-									$79.65
-								</span>
-							</div>
-						</div>
 
-						<div class="flex-w flex-t bor12 p-t-15 p-b-30">
-							<div class="size-208 w-full-ssm">
-								<span class="stext-110 cl2">
-									Shipping:
-								</span>
-							</div>
 
-							<div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
-								<p class="stext-111 cl6 p-t-2">
-									There are no shipping methods available. Please double check your address, or contact us if you need any help.
-								</p>
-								
-								<div class="p-t-15">
-									<span class="stext-112 cl8">
-										Calculate Shipping
-									</span>
 
-									<div class="rs1-select2 rs2-select2 bor8 bg0 m-b-12 m-t-9">
-										<select class="js-select2" name="time">
-											<option>Select a country...</option>
-											<option>USA</option>
-											<option>UK</option>
-										</select>
-										<div class="dropDownSelect2"></div>
-									</div>
+					
+    <div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
+        <h4 class="mtext-109 cl2 p-b-30">Cart Totals</h4>
 
-									<div class="bor8 bg0 m-b-12">
-										<input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="state" placeholder="State /  country">
-									</div>
-
-									<div class="bor8 bg0 m-b-22">
-										<input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="postcode" placeholder="Postcode / Zip">
-									</div>
+        <div class="flex-w flex-t bor12 p-b-13">
+            <div class="size-208"><span class="stext-110 cl2">Subtotal:</span></div>
+            <div class="size-209">
+                <span class="mtext-110 cl2">
+                    $<?php
+						$subtotal = 0;
+									foreach ($cartItems as $item) {
+										$subtotal += $item['product_price'] * $item['cart_items_quantity'];
+									}
+									echo  number_format($subtotal, 2);
 									
-									<div class="flex-w">
-										<div class="flex-c-m stext-101 cl2 size-115 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer">
-											Update Totals
-										</div>
-									</div>
-										
-								</div>
-							</div>
-						</div>
+					?>
+                </span>
+            </div>
+        </div>
 
-						<div class="flex-w flex-t p-t-27 p-b-33">
-							<div class="size-208">
-								<span class="mtext-101 cl2">
-									Total:
-								</span>
-							</div>
+        <div class="flex-w flex-t bor12 p-t-15 p-b-30">
+            <div class="size-208 w-full-ssm"><span class="stext-110 cl2">Shipping Address:</span></div>
+            <div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
+                <div class="p-t-15">
+                    <div class="rs1-select2 rs2-select2 bor8 bg0 m-b-12">
+                        <select class="js-select2" name="address_country" required>
+                            <option value="">Select a country...</option>
+                            <option value="Jordan">Jordan</option>
+                            <option value="SaudiArabia">SaudiArabia</option>
+                        </select>
+                        <div class="dropDownSelect2"></div>
+                    </div>
+                    <div class="bor8 bg0 m-b-12">
+                        <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="address_city" placeholder="City" required>
+                    </div>
+                    <div class="bor8 bg0 m-b-12">
+                        <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="address_street" placeholder="Street Address" required>
+                    </div>
+                    <div class="bor8 bg0 m-b-22">
+                        <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="address_zipcode" placeholder="Postcode / Zip" required>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-							<div class="size-209 p-t-1">
-								<span class="mtext-110 cl2">
-									$79.65
-								</span>
-							</div>
-						</div>
+        <div class="p-t-20 p-b-20">
+            <h5 class="stext-110 cl2 p-b-15">Payment Method</h5>
+            <div class="form-check m-b-10">
+                <input class="form-check-input" type="radio" name="payment_method" id="pay_delivery" value="delivery" checked onclick="toggleVisaForm(false)">
+                <label class="form-check-label stext-111 cl6" for="pay_delivery">Cash on Delivery</label>
+            </div>
+            <div class="form-check m-b-10">
+                <input class="form-check-input" type="radio" name="payment_method" id="pay_visa" value="visa" onclick="toggleVisaForm(true)">
+                <label class="form-check-label stext-111 cl6" for="pay_visa">Visa / Credit Card</label>
+            </div>
+        </div>
 
-						<button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
-							Proceed to Checkout
-						</button>
-					</div>
+        <div id="visa_details_form" style="display: none;" class="p-b-30">
+			<div class="bor8 bg0 m-b-12">
+        <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="card_name" placeholder="Full Name on Card" >
+    </div>
+            <div class="bor8 bg0 m-b-12">
+                <input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="card_number" placeholder="Card Number"  >
+            </div>
+            <div class="flex-w gap-2">
+                <div class="bor8 bg0 m-b-12 size-111" style="width: 48%;">
+                    <input class="stext-111 cl8 plh3 p-lr-15 w-full h-full" type="text" name="card_expiry" placeholder="MM/YY" >
+                </div>
+                <div class="bor8 bg0 m-b-12 size-111" style="width: 48%; margin-left: auto;">
+                    <input class="stext-111 cl8 plh3 p-lr-15 w-full h-full" type="text" name="card_cvv" placeholder="CVV" >
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-w flex-t p-t-27 p-b-33">
+            <div class="size-208"><span class="mtext-101 cl2">Total:</span></div>
+            <div class="size-209 p-t-1">
+                <span class="mtext-110 cl2">$<?php
+						$subtotal = 0;
+									foreach ($cartItems as $item) {
+										$subtotal += $item['product_price'] * $item['cart_items_quantity'];
+									}
+									echo  number_format($subtotal, 2);
+									
+					
+					  ?></span>
+            </div>
+        </div>
+
+        <button type="submit" name="checkout" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
+            Proceed to Checkout
+        </button>
+    </div>
+
 				</div>
-			</div>
+			</div></form>
 		</div>
-	</form>
+	
 		
 	
 		
@@ -699,6 +578,34 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	</script>
 <!--===============================================================================================-->
 	<script src="js/main.js"></script>
+<script>
+function toggleVisaForm(show) {
+    const visaForm = document.getElementById('visa_details_form');
+    const inputs = visaForm.querySelectorAll('input');
+    
+    if (show) {
+        visaForm.style.display = 'block';
+        // Make fields required only if visible
+        inputs.forEach(input => input.setAttribute('required', 'true'));
+    } else {
+        visaForm.style.display = 'none';
+        // Remove required attribute if hidden
+        inputs.forEach(input => input.removeAttribute('required'));
+    }
+}
+</script>
+<script>
+document.querySelectorAll('.wrap-num-product').forEach(wrap => {
+    const input = wrap.querySelector('input.num-product');
+    const btnUp = wrap.querySelector('.btn-num-product-up');
+    const btnDown = wrap.querySelector('.btn-num-product-down');
 
+    btnUp.addEventListener('click', () => {
+        input.value = parseInt(input.value || 0) + 1;
+    });
+
+  
+});
+</script>
 </body>
 </html>

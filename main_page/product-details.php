@@ -82,6 +82,34 @@ $colors = array_unique($colors);
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
     <style>
+        /* Minimalist Input Styling */
+.modern-qty-input {
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 12px 15px;
+    width: 100%;
+    max-width: 120px;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.modern-qty-input:focus {
+    border-color: #000;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Hide the annoying up/down arrows in Chrome/Safari/Firefox */
+.modern-qty-input::-webkit-outer-spin-button,
+.modern-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.modern-qty-input[type=number] {
+    -moz-appearance: textfield;
+}
     body { background-color: #f8f9fa; font-family: 'Poppins', sans-serif; }
     .product-card { border-radius: 20px; overflow: hidden; background: #fff; }
     
@@ -131,6 +159,50 @@ $colors = array_unique($colors);
         transition: 0.3s;
     }
     .btn-add-cart:hover { background: #333; color: #fff; transform: translateY(-2px); }
+    /* Counter Styling */
+.qty-counter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f1f1f1;
+    border-radius: 50px;
+    padding: 5px;
+    width: 140px;
+    user-select: none; /* Prevents text selection on double click */
+}
+
+.qty-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.qty-btn:hover {
+    background: #000;
+    color: #fff;
+}
+
+.qty-btn:active {
+    transform: scale(0.9);
+}
+
+.qty-input-readonly {
+    border: none;
+    background: transparent;
+    width: 40px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    pointer-events: none; /* User cannot click or type here */
+}
 </style>
 </head>
                     
@@ -164,7 +236,9 @@ if (!$variant_id || empty($variants)) {
                         <?= htmlspecialchars($variant['product_description']) ?>
                     </p>
 
-                    <form action="cart_process.php" method="POST">
+                    <form action="shoping-cart.php" method="POST" >
+                        <input type="hidden" name="product_id" value="<?= $variant['product_id'] ?>">
+                       
                         <div class="mb-4">
                             <label class="form-label d-block fw-bold small text-uppercase mb-3">Select Size</label>
                             <div class="d-flex flex-wrap gap-2">
@@ -184,9 +258,32 @@ if (!$variant_id || empty($variants)) {
                                 <?php endforeach; ?>
                             </div>
                         </div>
+<div class="mb-5">
+    <label class="form-label d-block fw-bold small text-uppercase mb-3">Quantity</label>
+    
+    <div class="qty-counter">
+        <button type="button" class="qty-btn" onclick="changeQty(-1)">
+            <i class="fa fa-minus"></i>
+        </button>
 
+        <input type="text" 
+               id="display-qty" 
+               name="quantity" 
+               value="1" 
+               class="qty-input-readonly" 
+               readonly>
+
+        <button type="button" class="qty-btn" onclick="changeQty(1)">
+            <i class="fa fa-plus"></i>
+        </button>
+    </div>
+    
+    <small class="text-muted mt-2 d-block px-2">
+        Only <?= (int)$variant['product_quantity'] ?> left in stock
+    </small>
+</div>
                         <div class="d-grid gap-3">
-                            <button type="submit" class="btn btn-add-cart">
+                            <button type="submit" class="btn btn-add-cart" name="add-to-cart">
                                 <i class="fa fa-shopping-cart me-2"></i> ADD TO CART
                             </button>
                             <a href="product.php" class="btn btn-link text-muted text-decoration-none small mt-2">
@@ -200,6 +297,21 @@ if (!$variant_id || empty($variants)) {
         </div>
     </div>
 </div>
+<script>
+    // Max stock from PHP
+    const maxStock = <?= (int)$variant['product_quantity'] ?>;
+    const qtyInput = document.getElementById('display-qty');
+
+    function changeQty(amount) {
+        let currentVal = parseInt(qtyInput.value);
+        let newVal = currentVal + amount;
+
+        // Ensure value stays between 1 and maxStock
+        if (newVal >= 1 && newVal <= maxStock) {
+            qtyInput.value = newVal;
+        }
+    }
+</script>
 </body>
 
 
