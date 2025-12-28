@@ -26,34 +26,55 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $zipcode = htmlspecialchars($_POST['address_zipcode'], ENT_QUOTES, 'UTF-8');
     $country = htmlspecialchars($_POST['address_country'], ENT_QUOTES, 'UTF-8');
     $payment_method = htmlspecialchars($_POST['payment_method'], ENT_QUOTES, 'UTF-8');
-    if($payment_method=='visa')
-    {
-
-$payment_status='paid';
-$card_name=htmlspecialchars($_POST['card_name'], ENT_QUOTES, 'UTF-8');
-$card_number=htmlspecialchars($_POST['card_number'], ENT_QUOTES, 'UTF-8');
-$card_expiry=htmlspecialchars($_POST['card_expiry'], ENT_QUOTES, 'UTF-8');
-$cvv=htmlspecialchars($_POST['card_cvv'], ENT_QUOTES, 'UTF-8');
- $cardNumberPattern = '/^\d{13,19}$/';
-    $expiryPattern = '/^(0[1-9]|1[0-2])\/\d{2}$/';
+  $payment_status='pending';
+if($payment_method=='visa') {
+    $payment_status='paid';
+    $card_name = trim($_POST['card_name']);
+    $card_number = $_POST['card_number'];
+    $card_expiry = trim($_POST['card_expiry']);
+    $cvv = trim($_POST['card_cvv']);
+    
+    // Clean the card number
+    $clean_card_number = preg_replace('/[^0-9]/', '', $card_number);
+    
+    $cardNumberPattern = '/^4[0-9]{12,18}$/';
+    $expiryPattern = '/^\d{2}\/\d{2}$/';
     $cvvPattern = '/^\d{3,4}$/';
 
-    if (!$card_name || !preg_match($cardNumberPattern, $card_number) || 
-        !preg_match($expiryPattern, $card_expiry) || !preg_match($cvvPattern, $cvv)) {
+    // Validate cleaned card number
+    if (empty($card_name)) {
+        $error = "Card name is required";
+    } elseif (!preg_match($cardNumberPattern, $clean_card_number)) {
+        $error = "Invalid Visa card. Must start with 4 and be 13-19 digits";
+    } elseif (!preg_match($expiryPattern, $card_expiry)) {
+        $error = "Expiry date must be in MM/YY format (e.g., 12/25)";
+    } elseif (!preg_match($cvvPattern, $cvv)) {
+        $error = "CVV must be 3 or 4 digits";
+    }
+    
+    if (isset($error)) {
         echo "<!DOCTYPE html><html><head><script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script></head><body>";
         echo "<script>
             Swal.fire({
                 icon: 'warning',
-                title: 'invalid card details',
-                text: 'please enter valid card details.',
-                confirmButtonText: 'ok'
+                title: 'Invalid Card Details',
+                text: '$error',
+                confirmButtonText: 'OK'
             }).then(() => {
                 window.location.href = 'shoping-cart.php';
             });
-           
         </script></body></html>";
         exit;
-    }}
+    }
+    
+    // Store cleaned number for database
+    $card_number = $clean_card_number;
+
+
+
+
+}
+
 
 
 $zibcodePattern = '/^\d{4,10}$/';

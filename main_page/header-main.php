@@ -1,29 +1,29 @@
-
 <?php 
 if(session_status() == PHP_SESSION_NONE){
     session_start();
 }
-$cart_stmt = $conn->prepare("SELECT cart_id FROM cart WHERE user_id = ?");
-$cart_stmt->bind_param("i", $_SESSION['user_id']);
-$cart_stmt->execute();
-$cart_result = $cart_stmt->get_result();
 
-if ($cart_result->num_rows > 0) {
-  
-    $cart_row = $cart_result->fetch_assoc();
-    $cart_id = $cart_row['cart_id'];
-    
-    $items_stmt = $conn->prepare("SELECT COUNT(*) as count FROM cart_items WHERE cart_id = ?");
-    $items_stmt->bind_param("i", $cart_id);
-    $items_stmt->execute();
-    $items_result = $items_stmt->get_result();
-    $items_row = $items_result->fetch_assoc();
-    $cart_count = $items_row['count'];
-} else {
+$cart_count = 0;
 
-    $cart_count = 0;
-    
+if (isset($_SESSION['user_id'])){
+    $cart_stmt = $conn->prepare("SELECT cart_id FROM cart WHERE user_id = ?");
+    $cart_stmt->bind_param("i", $_SESSION['user_id']);
+    $cart_stmt->execute();
+    $cart_result = $cart_stmt->get_result();
+
+    if ($cart_result->num_rows > 0) {
+        $cart_row = $cart_result->fetch_assoc();
+        $cart_id = $cart_row['cart_id'];
+        
+        $items_stmt = $conn->prepare("SELECT COUNT(*) as count FROM cart_items WHERE cart_id = ?");
+        $items_stmt->bind_param("i", $cart_id);
+        $items_stmt->execute();
+        $items_result = $items_stmt->get_result();
+        $items_row = $items_result->fetch_assoc();
+        $cart_count = $items_row['count'];
+    }
 }
+
 ?>
 
 
@@ -77,11 +77,11 @@ if ($cart_result->num_rows > 0) {
     <li><a href="myinfo.php">My info</a></li>
     <li><a href="auth/logout.php">Logout</a></li>
   </ul>
-</li> <?php endif;  ?>
+</li> 
                 </ul>
 
             </div>	
-  
+  <?php endif;  ?>
                 
                      <!-- Login and Signup buttons -->
             <div class="auth-buttons-container m-r-20">
