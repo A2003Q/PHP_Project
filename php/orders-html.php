@@ -16,17 +16,97 @@ $orders = $order->getAllOrders();
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Products</title>
+<title>Orders</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
-.page-header { background-color: #4f3131; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }
-.table thead { background-color: #4f3131; color: white; }
+
+
 .btn-primary { background-color: #4f3131; border: none; }
 .btn-primary:hover { background-color: #3e2626; }
 .card { border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.08); }
+
+.page-header {  
+    background: linear-gradient(150deg, #807777ff, #575f92ff); 
+    color: white; 
+    padding: 15px 20px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+}
+.table thead {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    color: #fff;
+}
+.table thead th {
+      background-color: #d8d0d0ff;
+       color: #1f1c1cff;
+}
+
+/* Add User Button */
+.btn-success {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    border: none;
+    color: #fff;
+}
+.btn-success:hover {
+    background: linear-gradient(150deg, #575f92ff, #807777ff);
+}
+
+/* Action buttons (Edit & Delete) */
+.btn-primary {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    border: none; /* remove edit border */
+    color: #fff;
+}
+.btn-primary:hover {
+    background: linear-gradient(150deg, #575f92ff, #807777ff);
+}
+.btn-danger {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    border: 1px solid #fff; /* keep delete border */
+    color: #fff;
+}
+.btn-danger:hover {
+    background: linear-gradient(150deg, #575f92ff, #807777ff);
+}
+
+/* Card */
+.card { 
+    border-radius: 12px; 
+    box-shadow: 0 0 15px rgba(0,0,0,0.08); 
+}
+
+/* Modal Styling */
+.modal-dialog {
+    max-width: 600px; /* bigger modal */
+    margin: 10% auto; /* center vertically */
+}
+.modal-content {
+    border-radius: 12px;
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    color: #fff;
+}
+.modal-body .form-control {
+    background-color: rgba(255,255,255,0.1);
+    border: 1px solid #fff;
+    color: #fff;
+}
+.modal-body .form-control::placeholder {
+    color: #ddd;
+}
+.modal-body .form-control:focus {
+    background-color: rgba(255,255,255,0.15);
+    color: #fff;
+    border-color: #fff;
+    box-shadow: none;
+}
+.modal-footer .btn {
+    color: #fff;
+    border: none;
+}
+
 </style>
 </head>
 <body>
@@ -45,9 +125,10 @@ $orders = $order->getAllOrders();
 </tr>
 </thead>
 <tbody>
+  <?php $i = 1; ?>
 <?php while ($order = $orders->fetch_assoc()): ?>
 <tr>
-<td><?= $order['order_id'] ?></td>
+<td><?= $i++ ?></td>
 <td><?= htmlspecialchars($order['user_id']) ?></td>
 <td><?= htmlspecialchars($order['order_status']) ?></td>
 <td><?= htmlspecialchars($order['order_totalprice']) ?></td>
@@ -124,19 +205,20 @@ document.querySelectorAll('.view-details').forEach(btn => {
            return;
        }
 
-       data.forEach(row => {
-           body.innerHTML += `
-           <tr>
-               <td>${row.order_details_id}</td>
-               
-               <td>${row.cart_items_id}</td>
-               <td>${row.product_id} - ${row.product_name}</td>
-               <td>${row.size}</td>
-               <td>${row.color}</td>
-               <td>${row.cart_items_quantity}</td>
-               <td>${row.price_atpurchase}</td>
-           </tr>
-           `;
+   data.forEach(row => {
+    body.innerHTML += `
+       <tr>
+           <td>${row.order_details_id}</td>
+           <td>${row.variant_id}</td>
+           <td>${row.product_id} - ${row.product_name}</td>
+           <td>${row.size}</td>
+           <td>${row.color}</td>
+           <td>${row.variant_quantity}</td>
+           <td>${row.price_atpurchase}</td>
+       </tr>
+    `;
+
+
        });
    })
    .catch(err => console.error(err));

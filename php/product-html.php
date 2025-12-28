@@ -1,8 +1,11 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once "../php/Products.php";
 require_once "../php/product_variants.php";
 require_once "../php/product_images.php";
+require_once "../php/categories.php";
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -13,21 +16,26 @@ $productsClass = new Products();
 $variantClass  = new ProductVariants();
 $imageClass    = new ProductImages();
 
+
 $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     switch ($_POST['action']) {
+case 'add':
+    $productId = $productsClass->addProduct(
+        $_POST['name'],
+        $_POST['price'],
+        $_POST['description'],
+        $_POST['quantity'],
+        $_POST['discount']
+    );
 
-        case 'add':
-            $productsClass->addProduct(
-                $_POST['name'],
-                $_POST['price'],
-                $_POST['description'],
-                $_POST['quantity'],
-                $_POST['discount']
-            );
-            break;
+    if ($productId) {
+        $productsClass->addProductCategory($productId, $_POST['categories_id']);
+    }
+break;
+
 
         case 'edit':
             $productsClass->updateProduct(
@@ -96,7 +104,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 
-$products = $productsClass->getAllProducts();
+
+$categoriesClass = new Categories();
+$categoriesResult = $categoriesClass->getAllCategories();
+
+$category_id = (int)($_GET['category'] ?? 0);
+$sort        = $_GET['sort'] ?? 'default';
+$price_range = $_GET['price'] ?? 'all';
+$search      = $_GET['query'] ?? '';
+
+$products = $productsClass->getFilteredProducts($category_id, $sort, $price_range, $search);
 // Fetch variants dynamically
 if (isset($_GET['fetch_variants'])) {
     $variants = $variantClass->getByProduct($_GET['fetch_variants']);
@@ -165,11 +182,86 @@ if (isset($_GET['fetch_images'])) {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
-.page-header { background-color: #4f3131; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }
-.table thead { background-color: #4f3131; color: white; }
-.btn-primary { background-color: #4f3131; border: none; }
-.btn-primary:hover { background-color: #3e2626; }
-.card { border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.08); }
+.page-header {  
+    background: linear-gradient(150deg, #807777ff, #575f92ff); 
+    color: white; 
+    padding: 15px 20px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+}
+.table thead {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    color: #fff;
+}
+.table thead th {
+      background-color: #d8d0d0ff;
+       color: #1f1c1cff;
+}
+
+/* Add User Button */
+.btn-success {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    border: none;
+    color: #fff;
+}
+.btn-success:hover {
+    background: linear-gradient(150deg, #575f92ff, #807777ff);
+}
+
+/* Action buttons (Edit & Delete) */
+.btn-primary {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    border: none; /* remove edit border */
+    color: #fff;
+}
+.btn-primary:hover {
+    background: linear-gradient(150deg, #575f92ff, #807777ff);
+}
+.btn-danger {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    border: 1px solid #fff; /* keep delete border */
+    color: #fff;
+}
+.btn-danger:hover {
+    background: linear-gradient(150deg, #575f92ff, #807777ff);
+}
+
+/* Card */
+.card { 
+    border-radius: 12px; 
+    box-shadow: 0 0 15px rgba(0,0,0,0.08); 
+}
+
+/* Modal Styling */
+.modal-dialog {
+    max-width: 600px; /* bigger modal */
+    margin: 10% auto; /* center vertically */
+}
+.modal-content {
+    border-radius: 12px;
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    color: #fff;
+}
+.modal-body .form-control {
+    background-color: rgba(255,255,255,0.1);
+    border: 1px solid #fff;
+    color: #fff;
+}
+.modal-body .form-control::placeholder {
+    color: #ddd;
+}
+.modal-body .form-control:focus {
+    background-color: rgba(255,255,255,0.15);
+    color: #fff;
+    border-color: #fff;
+    box-shadow: none;
+}
+.modal-footer .btn {
+    color: #fff;
+    border: none;
+}
+
+
 
 </style>
 </head>
@@ -186,6 +278,46 @@ if (isset($_GET['fetch_images'])) {
 <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
     <i class="fa fa-plus"></i> Add Product
 </button>
+<br>
+<form method="GET" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input type="text" name="query" class="form-control" placeholder="Search..." value="<?= htmlspecialchars($search) ?>">
+    </div>
+    <div class="col-md-3">
+        <select name="category" class="form-control">
+            <option value="0">All Categories</option>
+            <?php
+            $categoriesResult = $categoriesClass->getAllCategories(); // re-fetch in case used earlier
+            while ($c = $categoriesResult->fetch_assoc()): ?>
+                <option value="<?= $c['categories_id'] ?>" <?= $c['categories_id'] == $category_id ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($c['categories_name']) ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="price" class="form-control">
+            <option value="all" <?= $price_range == 'all' ? 'selected' : '' ?>>All Prices</option>
+            <option value="0-50" <?= $price_range == '0-50' ? 'selected' : '' ?>>$0 - $50</option>
+            <option value="50-100" <?= $price_range == '50-100' ? 'selected' : '' ?>>$50 - $100</option>
+            <option value="100-150" <?= $price_range == '100-150' ? 'selected' : '' ?>>$100 - $150</option>
+            <option value="150-200" <?= $price_range == '150-200' ? 'selected' : '' ?>>$150 - $200</option>
+            <option value="200+" <?= $price_range == '200+' ? 'selected' : '' ?>>$200+</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="sort" class="form-control">
+            <option value="default" <?= $sort == 'default' ? 'selected' : '' ?>>Default</option>
+            <option value="name_asc" <?= $sort == 'name_asc' ? 'selected' : '' ?>>Name ↑</option>
+            <option value="name_desc" <?= $sort == 'name_desc' ? 'selected' : '' ?>>Name ↓</option>
+            <option value="price_asc" <?= $sort == 'price_asc' ? 'selected' : '' ?>>Price ↑</option>
+            <option value="price_desc" <?= $sort == 'price_desc' ? 'selected' : '' ?>>Price ↓</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-success w-100"><i class="fa fa-search"></i> Filter</button>
+    </div>
+</form>
 
 <div class="card p-3">
 <table class="table table-bordered">
@@ -195,9 +327,10 @@ if (isset($_GET['fetch_images'])) {
 </tr>
 </thead>
 <tbody>
+   <?php $i = 1; ?>
 <?php while ($p = $products->fetch_assoc()): ?>
 <tr>
-<td><?= $p['product_id'] ?></td>
+<td><?= $i++ ?></td>
 <td><?= htmlspecialchars($p['product_name']) ?></td>
 <td>$<?= $p['product_price'] ?></td>
 <td><?= $p['product_quantity'] ?></td>
@@ -222,11 +355,15 @@ if (isset($_GET['fetch_images'])) {
 </form>
 
 <!-- VARIANTS & IMAGES (SEPARATE FROM DELETE FORM) -->
-<button type="button" class="btn btn-secondary btn-sm variantBtn" data-id="<?= $p['product_id'] ?>">
-    <i class="fa fa-layer-group"></i> Variants
+<button type="button"
+        class="btn btn-primary btn-sm variantBtn"
+        data-id="<?= $p['product_id'] ?>">
+    <i class="fa fa-layer-group"></i>
 </button>
-<button type="button" class="btn btn-info btn-sm imageBtn" data-id="<?= $p['product_id'] ?>">
-    <i class="fa fa-image"></i> Images
+<button type="button"
+        class="btn btn-primary btn-sm imageBtn"
+        data-id="<?= $p['product_id'] ?>">
+    <i class="fa fa-image"></i>
 </button>
 </td>
 </tr>
@@ -242,10 +379,20 @@ if (isset($_GET['fetch_images'])) {
 <input type="hidden" name="action" value="add">
 <div class="modal-content p-3">
 <input name="name" class="form-control mb-2" placeholder="Name" required>
+<select name="categories_id" class="form-control mb-2" required>
+    <option value="">Select Category</option>
+    <?php while ($c = $categoriesResult->fetch_assoc()): ?>
+        <option value="<?= $c['categories_id'] ?>">
+            <?= htmlspecialchars($c['categories_name']) ?>
+        </option>
+    <?php endwhile; ?>
+</select>
+
 <input name="price" type="number" step="0.01" class="form-control mb-2" placeholder="Price" required>
 <textarea name="description" class="form-control mb-2" placeholder="Description"></textarea>
 <input name="quantity" type="number" class="form-control mb-2" placeholder="Quantity" required>
 <input name="discount" type="number" class="form-control mb-2" value="0">
+
 <button class="btn btn-success">Add</button>
 </div>
 </form>

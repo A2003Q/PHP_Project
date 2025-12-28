@@ -1,5 +1,6 @@
 <?php
-session_start();
+session_start(); //A session allows you to store data on the server for a user, so you can keep track of that user across different pages.
+//Unlike cookies (stored on the browser), session data is stored on the server.
 require_once "../php/Admin.php";
 
 require_once "../SQL/Database.php";
@@ -12,6 +13,19 @@ $productCount = $conn->query("SELECT COUNT(*) AS total FROM products")->fetch_as
 
 // TOTAL REVENUE
 $totalRevenue = $conn->query("SELECT SUM(order_totalprice) AS revenue FROM orders")->fetch_assoc()['revenue'];
+
+// ORDER STATUS COUNTS
+$statusQuery = "
+    SELECT order_status, COUNT(*) AS total
+    FROM orders
+    GROUP BY order_status
+";
+$statusResult = $conn->query($statusQuery);
+
+$orderStatusData = [];
+while ($row = $statusResult->fetch_assoc()) {
+    $orderStatusData[$row['order_status']] = $row['total'];
+}
 
 
 
@@ -43,8 +57,8 @@ body {
     font-family: Arial, sans-serif;
 }
 
-#content h2 {
-    color: #4f3131; /* one of your gradient colors */
+#content h3 {
+    color: #575f92ff; /* one of your gradient colors */
     font-weight: bold;
 }
 
@@ -56,7 +70,7 @@ body {
 }
 
 .dashboard-card {
-    background: linear-gradient(135deg, #686868ff, #4f3131);
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
     color: #fff;
     padding: 30px;
     border-radius: 15px;
@@ -83,6 +97,47 @@ body {
     font-weight: bold;
     margin: 0;
 }
+.status-rings {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    flex-wrap: wrap;
+    margin-bottom: 60px;
+}
+
+.ring {
+    position: relative;
+    width: 140px;
+    height: 160px;
+    text-align: center;
+}
+
+.ring canvas {
+    width: 140px !important;
+    height: 140px !important;
+}
+
+.ring strong {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    color: #ffffff; /* FIXED */
+    font-size: 26px;
+    font-weight: bold;
+}
+
+
+.ring span {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #575f92ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+
 </style>
 
 </head>
@@ -95,41 +150,88 @@ body {
 
 <div id="content" class="container-fluid">
 
-    <h2 class="text-center mt-4 mb-5">
+    <h3 class="text-center mt-4 mb-5">
         Welcome, <?= htmlspecialchars($admin['user_name']) ?>!
-    </h2>
+    </h3>
+    <br>
 
     <div class="dashboard-row">
 
         <!-- Users -->
-        <div class="dashboard-card">
-            <i class="fa fa-users"></i>
-            <h4>Users</h4>
-            <p><?= $userCount ?></p>
-        </div>
+      <a href="user-html.php" style="text-decoration:none;">
+    <div class="dashboard-card">
+        <i class="fa fa-users"></i>
+        <h4>Users</h4>
+        <p><?= $userCount ?></p>
+    </div>
+</a>
+
 
         <!-- Orders -->
-        <div class="dashboard-card">
-            <i class="fa fa-box"></i>
-            <h4>Orders</h4>
-            <p><?= $orderCount ?></p>
-        </div>
+      <a href="orders-html.php" style="text-decoration:none;">
+    <div class="dashboard-card">
+        <i class="fa fa-box"></i>
+        <h4>Orders</h4>
+        <p><?= $orderCount ?></p>
+    </div>
+</a>
+
 
         <!-- Products -->
-        <div class="dashboard-card">
-            <i class="fa fa-shirt"></i>
-            <h4>Products</h4>
-            <p><?= $productCount ?></p>
-        </div>
+       <a href="product-html.php" style="text-decoration:none;">
+    <div class="dashboard-card">
+        <i class="fa fa-shirt"></i>
+        <h4>Products</h4>
+        <p><?= $productCount ?></p>
+    </div>
+</a>
 
-        <!-- Revenue -->
-        <div class="dashboard-card">
-            <i class="fa fa-dollar-sign"></i>
-            <h4>Total Revenue</h4>
-            <p>$<?= number_format($totalRevenue, 2) ?></p>
-        </div>
+
+       <a href="orders-html.php" style="text-decoration:none;">
+    <div class="dashboard-card">
+        <i class="fa fa-dollar-sign"></i>
+        <h4>Total Revenue</h4>
+        <p>$<?= number_format($totalRevenue, 2) ?></p>
+    </div>
+</a>
+
 
     </div>
+    <br>
+    <br>
+    
+
+
+   <h3 class="text-center mt-5 mb-4" style="#807777ff;">
+    Order Status Overview
+</h3>
+<br>
+
+<div class="status-rings">
+
+<?php
+$statusColors = [
+    'Pending'    => '   #575f92ff',
+    'Processing' => ' #575f92ff',
+    'Shipped'    => ' #575f92ff',
+    'Delivered'  => ' #575f92ff',
+    'Cancelled'  => ' #575f92ff'
+];
+
+foreach ($orderStatusData as $status => $count):
+    $color = $statusColors[$status] ?? '#807777ff';
+?>
+    <div class="ring">
+        <canvas id="ring_<?= $status ?>"></canvas>
+        <strong><?= $count ?></strong>
+        <span><?= ucfirst($status) ?></span>
+    </div>
+<?php endforeach; ?>
+
+</div>
+
+</div>
+
 </div>
 
 
@@ -138,7 +240,53 @@ body {
 </div>
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+<?php foreach ($orderStatusData as $status => $count): ?>
+(() => {
+    const canvas = document.getElementById("ring_<?= $status ?>");
+    const ctx = canvas.getContext("2d");
+
+    // Create gradient (THIS is the key)
+    const gradient = ctx.createLinearGradient(0, 0, 140, 140);
+    gradient.addColorStop(0, "#807777ff");
+    gradient.addColorStop(1, "#575f92ff");
+
+    new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            datasets: [{
+                data: [<?= $count ?>, <?= max($orderCount - $count, 0) ?>],
+                backgroundColor: [
+                    gradient,
+                    "#e6e6e6"
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            cutout: "78%",
+            animation: {
+                duration: 1800,
+                easing: "easeOutCubic"
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            }
+        }
+    });
+})();
+<?php endforeach; ?>
+</script>
+
+
+
 </body>
 </html>
 

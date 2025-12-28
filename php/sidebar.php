@@ -16,44 +16,58 @@ if (!isset($_SESSION['user_id'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        body {
-            font-family: 'Nunito', sans-serif;
-        }
-        #wrapper {
-            display: flex;
-        }
-        /* Sidebar */
-        .sidebar {
-            min-width: 220px;
-            max-width: 220px;
-            background-color: #4f3131;
-            color: white;
-            height: 100vh;
-        }
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-        }
-        .sidebar .sidebar-brand {
-            padding: 1rem;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .sidebar .nav-item {
-            padding: 0.5rem 1rem;
-        }
-        .sidebar .nav-item:hover {
-            background-color: #4f3131;
-        }
-        /* Content */
-        #content {
-            flex-grow: 1;
-            padding: 2rem;
-            background-color:  #ffffff;
-            min-height: 100vh;
-        }
+      html, body {
+    height: 100%;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    margin: 0;
+}
+
+#wrapper {
+    display: flex;
+    align-items: stretch; /* IMPORTANT */
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    min-width: 220px;
+    max-width: 220px;
+     background: linear-gradient(150deg, #807777ff, #575f92ff);
+    color: white;
+}
+
+/* Sidebar links */
+.sidebar a {
+    color: white;
+    text-decoration: none;
+}
+
+.sidebar .sidebar-brand {
+    padding: 1rem;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar .nav-item {
+    padding: 0.5rem 1rem;
+} 
+
+.sidebar .nav-item:hover {
+    background-color:  #b2b2b2;
+}
+
+/* Content */
+#content {
+    flex-grow: 1;
+    padding: 2rem;
+    background-color: #d8d0d0ff;
+}
+
     </style>
 </head>
 <body>
