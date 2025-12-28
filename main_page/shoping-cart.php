@@ -1,7 +1,8 @@
 <?php
+session_start();
 require_once '../SQL/database.php';
 $conn = Database::getInstance()->getConnection();
-session_start();
+
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
 $product_id = (int)($_POST['product_id'] ?? 0);
 $quantity   = max(1, (int)($_POST['quantity'] ?? 1));
@@ -9,17 +10,28 @@ $size       = trim($_POST['size'] ?? '');
 $color      = trim($_POST['color'] ?? '');
 
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
-    echo '<script>
-        Swal.fire({
-            icon: "warning",
-            title: "Login Required",
-            text: "You must log in first",
-            showConfirmButton: true
-        }).then(() => {
-            window.location.href = "auth/login.php";
-        });
-    </script>';
+    echo '<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login Required</title>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+        <script>
+            Swal.fire({
+                icon: "warning",
+                title: "Login Required",
+                text: "You must log in first",
+                showConfirmButton: true,
+                confirmButtonText: "Go to Login"
+            }).then(() => {
+                window.location.href = "auth/login.php";
+            });
+        </script>
+    </body>
+    </html>';
     exit;
 }
 
@@ -104,13 +116,17 @@ echo '<script>
     }).then(() => {
        location.href = "shoping-cart.php";
     });
-</script>';}
+</script>';
+header('Location: product.php');
+exit;
+}
 $stmt = $conn->prepare("SELECT 
 ci.cart_id,
     ci.cart_items_id,
     p.product_id,
     p.product_name,
     p.product_price,
+	p.product_discount,
     pi.image_url,
     v.size,
     v.color,
@@ -130,6 +146,7 @@ $cartItems = [];
 while ($row = $result->fetch_assoc()) {
 	$cartItems[] = $row;
 }
+
 
 ?>
 
@@ -213,7 +230,21 @@ while ($row = $result->fetch_assoc()) {
 										</div>
 									</td>
 									<td class="column-2"><?php echo htmlspecialchars($item['product_name']); ?></td>
-									<td class="column-3">$ <?php echo number_format($item['product_price'], 2); ?></td>
+                                         <?php
+                if ($item['product_discount'] > 0) {
+
+                    $newPrice = $item['product_price'] - 
+                                ($item['product_price'] * $item['product_discount'] / 100);
+
+                   
+                    
+                } else {
+
+                    $newPrice = $item['product_price'];
+                }
+                ?>
+									<td class="column-3">$ <?php echo number_format($newPrice, 2); ?></td>
+									
 									<td class="column-4">
 										<div class="wrap-num-product flex-w m-l-auto m-r-0">
 											<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
@@ -228,7 +259,7 @@ while ($row = $result->fetch_assoc()) {
 											</div>
 										</div>
 									</td>
-									<td class="column-5">$ <?php echo number_format($item['product_price'] * $item['cart_items_quantity'], 2); ?></td>
+									<td class="column-5">$ <?php echo number_format($newPrice * $item['cart_items_quantity'], 2); ?></td>
 								</tr>
 <?php endforeach; ?>
 								<tr class="table_row">

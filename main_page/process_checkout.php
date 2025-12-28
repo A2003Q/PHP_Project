@@ -105,8 +105,29 @@ $result = $stmt->get_result();
 if ($row = $result->fetch_assoc()) {
     $cart_id = $row['cart_id'];
 } else {
-    // Handle error: no cart found
-    die("No cart found");
+    echo '<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error</title>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+        <script>
+            Swal.fire({
+                icon: "error",
+                title: "Cart Error",
+                text: "No cart found",
+                showConfirmButton: true,
+                confirmButtonText: "OK"
+            }).then(() => {
+                window.history.back();
+            });
+        </script>
+    </body>
+    </html>';
+    exit;
 }
 $stmt2 = $conn->prepare("SELECT 
     SUM(ci.cart_items_quantity * p.product_price) AS total
@@ -153,37 +174,135 @@ foreach ($cartItems as $item) {
         break;
     }
 }if ($success) {
+    // Delete the cart after successful order
     $stmt = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
-    if (!$stmt) { die("Delete cart prepare failed: " . $conn->error); }
     $stmt->bind_param("i", $user_id);
-    if (!$stmt->execute()) { die("Delete cart execute failed: " . $stmt->error); }
+    $stmt->execute();
     $stmt->close();
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Success</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .review-card {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .review-title { font-weight: 600; color: #333; display: block; font-size: 1rem; }
+        .review-sub { font-size: 0.85rem; color: #888; margin-bottom: 8px; display: block; }
+        .review-select { height: 40px !important; margin: 5px 0 !important; border-radius: 8px !important; font-size: 0.9rem !important; width: 100% !important; }
+        .review-text { height: 70px !important; margin: 5px 0 !important; border-radius: 8px !important; font-size: 0.85rem !important; width: 100% !important; padding: 10px !important; }
+    </style>
+</head>
+<body>
 
-    ?>
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Order Success</title>
-        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-    </head>
-    <body>
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Order Placed!',
-            text: 'Your order has been successfully placed.',
-            confirmButtonText: 'OK'
-        }).then(() => {
+<script>
+    // 1. Success Message
+    Swal.fire({
+        icon: 'success',
+        title: 'Order Placed!',
+        text: 'Your order #<?= $order_id ?> has been successfully placed.',
+        showCancelButton: true,
+        confirmButtonText: 'Rate Items',
+        cancelButtonText: 'Skip',
+        confirmButtonColor: '#333'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // 2. Rating Modal (Only if they clicked "Rate Items")
+            Swal.fire({
+                title: 'Rate Your Items',
+                width: '600px',
+                html: `
+                    <div style="max-height: 450px; overflow-y: auto; padding-right: 10px;">
+                        <?php 
+                        // Re-fetch order details for the loop
+                        $stmt = $conn->prepare("SELECT od.order_details_id, p.product_name, v.size, v.color 
+                                              FROM order_details od 
+                                              JOIN product_variant v ON od.variant_id = v.variant_id 
+                                              JOIN products p ON v.product_id = p.product_id 
+                                              WHERE od.order_id = ?");
+                        $stmt->bind_param("i", $order_id);
+                        $stmt->execute();
+                        $order_details = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+                        foreach ($order_details as $detail): ?>
+                            <div class="review-card" data-id="<?= $detail['order_details_id'] ?>">
+                                <span class="review-title"><?= htmlspecialchars($detail['product_name']) ?></span>
+                                <span class="review-sub">Size: <?= $detail['size'] ?> | Color: <?= $detail['color'] ?></span>
+                                
+                                <select class="swal2-select review-select rating-input">
+                                    <option value="">Select Rating</option>
+                                    <option value="5">★★★★★ Excellent</option>
+                                    <option value="4">★★★★ Good</option>
+                                    <option value="3">★★★ Okay</option>
+                                    <option value="2">★★ Poor</option>
+                                    <option value="1">★ Bad</option>
+                                </select>
+
+                                <textarea class="swal2-textarea review-text feedback-input" placeholder="Feedback (Optional)"></textarea>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Submit Feedback',
+                preConfirm: () => {
+                    const results = [];
+                    const cards = document.querySelectorAll('.review-card');
+                    let allRated = true;
+
+                    cards.forEach(card => {
+                        const rating = card.querySelector('.rating-input').value;
+                        const feedback = card.querySelector('.feedback-input').value;
+                        const id = card.getAttribute('data-id');
+
+                        if (!rating) {
+                            allRated = false;
+                        }
+                        results.push({ id: id, rating: rating, feedback: feedback });
+                    });
+
+                    if (!allRated) {
+                        Swal.showValidationMessage('Please rate all items');
+                        return false;
+                    }
+                    return results;
+                }
+            }).then((reviewResult) => {
+                if (reviewResult.isConfirmed && reviewResult.value) {
+                    // 3. Send to Database via Fetch
+                    fetch('save_feedback.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(reviewResult.value)
+                    }).then(() => {
+                        Swal.fire('Thank You!', 'Your feedback was saved.', 'success')
+                            .then(() => window.location.href = 'index.php');
+                    });
+                } else {
+                    window.location.href = 'index.php';
+                }
+            });
+        } else {
+            // If they click "Skip"
             window.location.href = 'index.php';
-        });
-    </script>
-    </body>
-    </html>
-    <?php
+        }
+    });
+</script>
+</body>
+</html>
+<?php
     exit;
-}
-else {
+} else {
     echo "Error processing order details.";
     exit;
 }
- }?>
+} ?>

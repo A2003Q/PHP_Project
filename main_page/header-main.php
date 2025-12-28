@@ -1,4 +1,36 @@
-	<header class="header-v4">
+
+<?php 
+if(session_status() == PHP_SESSION_NONE){
+    session_start();
+}
+$cart_stmt = $conn->prepare("SELECT cart_id FROM cart WHERE user_id = ?");
+$cart_stmt->bind_param("i", $_SESSION['user_id']);
+$cart_stmt->execute();
+$cart_result = $cart_stmt->get_result();
+
+if ($cart_result->num_rows > 0) {
+  
+    $cart_row = $cart_result->fetch_assoc();
+    $cart_id = $cart_row['cart_id'];
+    
+    $items_stmt = $conn->prepare("SELECT COUNT(*) as count FROM cart_items WHERE cart_id = ?");
+    $items_stmt->bind_param("i", $cart_id);
+    $items_stmt->execute();
+    $items_result = $items_stmt->get_result();
+    $items_row = $items_result->fetch_assoc();
+    $cart_count = $items_row['count'];
+} else {
+
+    $cart_count = 0;
+}
+?>
+
+
+
+
+
+
+<header class="header-v4" >
 		
 	<!-- Header desktop -->
 <div class="container-menu-desktop">
@@ -7,14 +39,14 @@
         <nav class="limiter-menu-desktop container">
             
             <!-- Logo desktop -->		
-            <a href="#" class="logo">
+            <a href="index.php" class="logo">
                 <img src="images/icons/logo-01.png" alt="IMG-LOGO">
             </a>
 
             <!-- Menu desktop -->
             <div class="menu-desktop">
                 <ul class="main-menu">
-                    <li class="active-menu">
+                    <li class="">
                         <a href="index.php">Home</a>
                     </li>
 
@@ -22,20 +54,18 @@
                         <a href="product.php">Shop</a>
                     </li>
 
-                    <li class="label1" data-label1="hot">
-                        <a href="shoping-cart.html">Features</a>
+                    
+
+                    <li>
+                        <a href="my_orders.php">my orders</a>
                     </li>
 
                     <li>
-                        <a href="blog.html">Blog</a>
+                        <a href="about.php">About</a>
                     </li>
 
                     <li>
-                        <a href="about.html">About</a>
-                    </li>
-
-                    <li>
-                        <a href="contact.html">Contact</a>
+                        <a href="contact.php">Contact</a>
                     </li>
 				  <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true): ?>	
 
@@ -43,7 +73,7 @@
   <a href="#">My Account</a>
 
   <ul class="sub-menu">
-    <li><a href="index.html">My info</a></li>
+    <li><a href="myinfo.php">My info</a></li>
     <li><a href="auth/logout.php">Logout</a></li>
   </ul>
 </li> <?php endif;  ?>
@@ -81,8 +111,8 @@
                         <i class="zmdi zmdi-search"></i>
                     </div>
 
-                    <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="5" >
-                       <a href="shoping-cart.php" > <i class="zmdi zmdi-shopping-cart"></i></a>
+                    <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="<?= $cart_count ?? 0?>" >
+                       <a href="shoping-cart.php" > <i class="zmdi zmdi-shopping-cart" style="color: black;"></i></a>
                     </div>
 
                     <a href="#" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" data-notify="0">

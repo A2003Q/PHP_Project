@@ -3,6 +3,7 @@ require_once '../SQL/database.php';
 session_start();
 
 $conn = Database::getInstance()->getConnection();
+ 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($_POST['cart_items_id'] as $index => $id) {
     $quantity = (int)$_POST['quantity'][$index];

@@ -1,6 +1,8 @@
 <?php 
+session_start();
 require_once '../SQL/database.php';
 $conn = Database::getInstance()->getConnection();
+include 'header-main.php';
 $variant_id = (int)($_GET['variantid'] ?? 0);
 $variant_id = (int)($_GET['variantid'] ?? 0);
 
@@ -15,6 +17,7 @@ $colors = [];
     p.product_price,
     p.product_description,
     p.product_quantity,
+    p.product_discount,
     v.size,
     v.color
 FROM products p
@@ -203,6 +206,16 @@ $colors = array_unique($colors);
     font-size: 1.1rem;
     pointer-events: none; /* User cannot click or type here */
 }
+body {
+    margin: 0;
+    padding: 0;
+  
+}
+
+.container.py-5 {
+    padding-top: 0 !important;
+   
+}
 </style>
 </head>
                     
@@ -216,7 +229,8 @@ if (!$variant_id || empty($variants)) {
 ?>
 
 <?php if(isset($variant_id)): ?>
-  <body class="bg-light">
+  <body class="bg-light" style="background-color:white !important;">
+    
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-5">
@@ -227,10 +241,31 @@ if (!$variant_id || empty($variants)) {
                     
                     <h2 class="display-6 fw-bold mb-2"><?= htmlspecialchars($variant['product_name']) ?></h2>
                     
-                    <div class="d-flex align-items-center mb-4">
-                        <h3 class="text-dark fw-bold mb-0">$<?= htmlspecialchars($variant['product_price']) ?></h3>
-                        <span class="ms-3 text-muted text-decoration-line-through small">$<?= number_format($variant['product_price'] * 1.2, 2) ?></span>
-                    </div>
+                                <?php
+                if ($variant['product_discount'] > 0) {
+
+                    $newPrice = $variant['product_price'] - 
+                                ($variant['product_price'] * $variant['product_discount'] / 100);
+
+                    echo "
+                    <div class='d-flex align-items-center mb-4'>
+                        <h3 class='text-dark fw-bold mb-0'>$ " . htmlspecialchars(number_format($newPrice, 2)) . "</h3>
+                        <span class='ms-3 text-muted text-decoration-line-through small'><del '>
+                            $ " . htmlspecialchars(number_format($variant['product_price'], 2)) . "
+                        </del></span>
+                    </div>";
+                    
+                } else {
+
+                    echo "
+                    <div class='d-flex align-items-center mb-4'>
+                        <h3 class='text-dark fw-bold mb-0'>
+                            $ " . htmlspecialchars(number_format($variant['product_price'], 2)) . "
+                        </h3>
+                    </div>";
+                }
+                ?>
+         
 
                     <p class="text-muted mb-4 lh-lg">
                         <?= htmlspecialchars($variant['product_description']) ?>
@@ -312,6 +347,7 @@ if (!$variant_id || empty($variants)) {
         }
     }
 </script>
+<?php include 'footer.php'; ?>
 </body>
 
 
