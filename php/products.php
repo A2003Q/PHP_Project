@@ -13,7 +13,7 @@ class Products extends CRUD {
         (product_name, product_price, product_description, product_quantity, product_discount)
         VALUES (?, ?, ?, ?, ?)"
     );
-    $stmt->bind_param("sdsii", $name, $price, $description, $quantity, $discount);
+    $stmt->bind_param("sdsii", $name, $price, $description, $quantity, $discount); //Binds your PHP variables to the placeholders in the SQL ,"sdsii" explains the types of the variables ,this with prepare stat -->This ensures correct type handling and prevents SQL injection.
 
     if ($stmt->execute()) {
         return $this->conn->insert_id; // ✅ RETURN PRODUCT ID
@@ -32,6 +32,7 @@ class Products extends CRUD {
         $stmt->bind_param("sdsiii", $name, $price, $description, $quantity, $discount, $id);
         return $stmt->execute();
     }
+    
     public function addProductCategory($productId, $categoryId) {
     $stmt = $this->conn->prepare(
         "INSERT INTO product_categories (product_id, categories_id) VALUES (?, ?)"
