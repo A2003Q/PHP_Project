@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once "../php/categories.php";
 
 if (!isset($_SESSION['user_id'])) {
@@ -52,12 +54,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
-.page-header { background-color: #4f3131; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }
-.table thead { background-color: #4f3131; color: white; }
-.btn-primary { background-color: #4f3131; border: none; }
-.btn-primary:hover { background-color: #3e2626; }
-.card { border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.08); }
+.page-header {  
+    background: linear-gradient(150deg, #807777ff, #575f92ff); 
+    color: white; 
+    padding: 15px 20px; 
+    border-radius: 8px; 
+    margin-bottom: 20px; 
+}
+.table thead {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    color: #fff;
+}
+.table thead th {
+      background-color: #d8d0d0ff;
+       color: #1f1c1cff;
+}
 
+/* Add User Button */
+.btn-success {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    border: none;
+    color: #fff;
+}
+.btn-success:hover {
+    background: linear-gradient(150deg, #575f92ff, #807777ff);
+}
+
+/* Action buttons (Edit & Delete) */
+.btn-primary {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    border: none; /* remove edit border */
+    color: #fff;
+}
+.btn-primary:hover {
+    background: linear-gradient(150deg, #575f92ff, #807777ff);
+}
+.btn-danger {
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    border: 1px solid #fff; /* keep delete border */
+    color: #fff;
+}
+.btn-danger:hover {
+    background: linear-gradient(150deg, #575f92ff, #807777ff);
+}
+
+/* Card */
+.card { 
+    border-radius: 12px; 
+    box-shadow: 0 0 15px rgba(0,0,0,0.08); 
+}
+
+/* Modal Styling */
+.modal-dialog {
+    max-width: 600px; /* bigger modal */
+    margin: 10% auto; /* center vertically */
+}
+.modal-content {
+    border-radius: 12px;
+    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    color: #fff;
+}
+.modal-body .form-control {
+    background-color: rgba(255,255,255,0.1);
+    border: 1px solid #fff;
+    color: #fff;
+}
+.modal-body .form-control::placeholder {
+    color: #ddd;
+}
+.modal-body .form-control:focus {
+    background-color: rgba(255,255,255,0.15);
+    color: #fff;
+    border-color: #fff;
+    box-shadow: none;
+}
+.modal-footer .btn {
+    color: #fff;
+    border: none;
+}
+
+/* Inline validation styles */
+.form-control.is-invalid {
+    border-color: #ffffff !important;
+    background-image: none;
+}
+.form-control.is-valid {
+    border-color: #ffffff !important;
+    background-image: none;
+}
+.invalid-feedback {
+    color: #ffffff !important;
+    font-size: 13px;
+}
 </style>
 </head>
 <body>
@@ -82,9 +170,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 </tr>
 </thead>
 <tbody>
+      <?php $i = 1; ?>
 <?php while ($c = $cates->fetch_assoc()): ?>
 <tr>
-<td><?= $c['categories_id'] ?></td>
+<td><?= $i++ ?></td>
 <td><?= htmlspecialchars($c['categories_name']) ?></td>
 <td><?= $c['categories_description'] ?></td>
 <td><?= $c['categories_picture'] ?></td>

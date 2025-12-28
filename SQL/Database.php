@@ -3,11 +3,11 @@
 // db/Database.php
 class Database {
 
-    private static $instance = null;   // Holds the ONE instance
+    private static $instance = null;   // static means it belongs to the class itself, not to an object.
     protected $conn;
 
     // 1️⃣ Make constructor PRIVATE
-    private function __construct() {
+    private function __construct() { //why private ? Because we want only one instance, so nobody can create multiple objects.
         $this->conn = new mysqli("localhost", "root", "", "db3");
 
         if ($this->conn->connect_error) {
@@ -16,7 +16,7 @@ class Database {
     }
 
     // 2️⃣ Public method to get the ONE instance
-    public static function getInstance() {
+    public static function getInstance() { //It checks if an instance already exists:: If not, it creates one using the private constructor.If yes, it returns the existing one.
         if (self::$instance === null) {
             self::$instance = new Database();
         }
@@ -29,11 +29,7 @@ class Database {
     }
 
     // 4️⃣ Prevent cloning
-    private function __clone() {}
+    private function __clone() {} //clone creates a copy of an object.
 
 }
-
-
-
-
 ?>

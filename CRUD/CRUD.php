@@ -1,6 +1,6 @@
 
 <?php
-require_once "../SQL/Database.php";
+require_once "../SQL/Database.php"; // and require : is used to include another PHP file into your script. , but the difference that require_one only call one time
 
 class CRUD  {
     protected $conn;
