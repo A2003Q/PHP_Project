@@ -31,10 +31,13 @@ case 'add':
         $_POST['discount']
     );
 
-    if ($productId) {
-        $productsClass->addProductCategory($productId, $_POST['categories_id']);
+    if ($productId && !empty($_POST['categories_id'])) {
+        foreach ($_POST['categories_id'] as $catId) {
+            $productsClass->addProductCategory($productId, $catId);
+        }
     }
-break;
+    break;
+
 
 
         case 'edit':
@@ -183,47 +186,47 @@ if (isset($_GET['fetch_images'])) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
 .page-header {  
-    background: linear-gradient(150deg, #807777ff, #575f92ff); 
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     color: white; 
     padding: 15px 20px; 
     border-radius: 8px; 
     margin-bottom: 20px; 
 }
 .table thead {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     color: #fff;
 }
 .table thead th {
-      background-color: #d8d0d0ff;
-       color: #1f1c1cff;
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
+       color: #f1f0f0ff;
 }
 
 /* Add User Button */
 .btn-success {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     border: none;
     color: #fff;
 }
 .btn-success:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 }
 
 /* Action buttons (Edit & Delete) */
 .btn-primary {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     border: none; /* remove edit border */
     color: #fff;
 }
 .btn-primary:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 }
 .btn-danger {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     border: 1px solid #fff; /* keep delete border */
     color: #fff;
 }
 .btn-danger:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+ background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 }
 
 /* Card */
@@ -239,11 +242,11 @@ if (isset($_GET['fetch_images'])) {
 }
 .modal-content {
     border-radius: 12px;
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     color: #fff;
 }
 .modal-body .form-control {
-    background-color: rgba(255,255,255,0.1);
+    background-color: #fff(255,255,255,0.1);
     border: 1px solid #fff;
     color: #fff;
 }
@@ -251,7 +254,7 @@ if (isset($_GET['fetch_images'])) {
     color: #ddd;
 }
 .modal-body .form-control:focus {
-    background-color: rgba(255,255,255,0.15);
+    background-color: #fff(255,255,255,0.15);
     color: #fff;
     border-color: #fff;
     box-shadow: none;
@@ -259,6 +262,9 @@ if (isset($_GET['fetch_images'])) {
 .modal-footer .btn {
     color: #fff;
     border: none;
+}
+.form-label,.form-check-input,.form-check-label{
+     color: #fff;
 }
 
 
@@ -278,6 +284,43 @@ if (isset($_GET['fetch_images'])) {
 <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">
     <i class="fa fa-plus"></i> Add Product
 </button>
+
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal fade" id="addProductModal">
+<div class="modal-dialog">
+<form method="POST">
+<input type="hidden" name="action" value="add">
+<div class="modal-content p-3">
+<input name="name" class="form-control mb-2" placeholder="Name" required>
+
+<!-- Category as Checkboxes -->
+<div class="mb-2">
+    <label class="form-label">Category :</label>
+    <div>
+        <?php while ($c = $categoriesResult->fetch_assoc()): ?>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="categories_id[]" id="cat<?= $c['categories_id'] ?>" value="<?= $c['categories_id'] ?>">
+                <label class="form-check-label" for="cat<?= $c['categories_id'] ?>">
+                    <?= htmlspecialchars($c['categories_name']) ?>
+                </label>
+            </div>
+        <?php endwhile; ?>
+    </div>
+</div>
+
+<input name="price" type="number" step="0.01" class="form-control mb-2" placeholder="Price" required>
+<textarea name="description" class="form-control mb-2" placeholder="Description"></textarea>
+<input name="quantity" type="number" class="form-control mb-2" placeholder="Quantity" required>
+<input name="discount" type="number" class="form-control mb-2" value="0">
+
+<button class="btn btn-success">Add</button>
+</div>
+</form>
+</div>
+</div>
+
+
 <br>
 <form method="GET" class="row g-2 mb-3">
     <div class="col-md-3">
@@ -372,32 +415,7 @@ if (isset($_GET['fetch_images'])) {
 </table>
 </div>
 
-<!-- ADD PRODUCT MODAL -->
-<div class="modal fade" id="addProductModal">
-<div class="modal-dialog">
-<form method="POST">
-<input type="hidden" name="action" value="add">
-<div class="modal-content p-3">
-<input name="name" class="form-control mb-2" placeholder="Name" required>
-<select name="categories_id" class="form-control mb-2" required>
-    <option value="">Select Category</option>
-    <?php while ($c = $categoriesResult->fetch_assoc()): ?>
-        <option value="<?= $c['categories_id'] ?>">
-            <?= htmlspecialchars($c['categories_name']) ?>
-        </option>
-    <?php endwhile; ?>
-</select>
 
-<input name="price" type="number" step="0.01" class="form-control mb-2" placeholder="Price" required>
-<textarea name="description" class="form-control mb-2" placeholder="Description"></textarea>
-<input name="quantity" type="number" class="form-control mb-2" placeholder="Quantity" required>
-<input name="discount" type="number" class="form-control mb-2" value="0">
-
-<button class="btn btn-success">Add</button>
-</div>
-</form>
-</div>
-</div>
 
 <!-- EDIT PRODUCT MODAL -->
 <div class="modal fade" id="editProductModal">

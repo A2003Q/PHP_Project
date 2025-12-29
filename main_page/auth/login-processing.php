@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['role']      = $user['user_role'];
     $_SESSION['logged_in'] = true;
 
-    $redirect = ($_SESSION['role'] === 'admin') 
+    $redirect = ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'Admin') 
                 ? '../../php/admin_dashbored.php' 
                 : '../index.php';
 

@@ -15,60 +15,108 @@ if (!isset($_SESSION['user_id'])) {
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-      html, body {
+   <style>
+/* Reset */
+html, body {
     height: 100%;
-}
-
-body {
-    font-family: 'Nunito', sans-serif;
     margin: 0;
+    font-family: 'Nunito', sans-serif;
 }
 
+/* Wrapper */
 #wrapper {
     display: flex;
-    align-items: stretch; /* IMPORTANT */
     min-height: 100vh;
+    align-items: stretch; /* IMPORTANT */
 }
 
 /* Sidebar */
+/* Sidebar */
 .sidebar {
-    min-width: 220px;
-    max-width: 220px;
-     background: linear-gradient(150deg, #807777ff, #575f92ff);
+    min-width: 250px;
+    max-width: 250px;
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e); /* Dark stylish gradient */
     color: white;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.2);
+}
+
+/* Sidebar brand */
+.sidebar .sidebar-brand {
+    padding: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 1px;
+    background-color: rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
 }
 
 /* Sidebar links */
 .sidebar a {
-    color: white;
+    color: #f0f0f5;
     text-decoration: none;
-}
-
-.sidebar .sidebar-brand {
-    padding: 1rem;
-    font-size: 1.2rem;
     display: flex;
     align-items: center;
-    justify-content: center;
+    padding: 0.9rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    margin: 0.3rem 0;
+    transition: 0.3s;
 }
 
-.sidebar .nav-item {
-    padding: 0.5rem 1rem;
-} 
-
-.sidebar .nav-item:hover {
-    background-color:  #b2b2b2;
+.sidebar a i {
+    margin-right: 10px;
+    font-size: 1.2rem;
 }
 
-/* Content */
+/* Hover effect */
+.sidebar a:hover {
+    background-color: #5a5a7a; /* soft muted highlight */
+    transform: translateX(5px);
+}
+
+/* Active link */
+.sidebar .nav-item.active a {
+    background-color: #7a78a0; /* slightly stronger highlight */
+    font-weight: 600;
+}
+
+/* Divider */
+.sidebar hr {
+    border-color: rgba(255,255,255,0.2);
+    margin: 1rem 0;
+}
+
+/* Content area */
 #content {
     flex-grow: 1;
     padding: 2rem;
-    background-color: #d8d0d0ff;
+    background-color: #f8f7fa; /* soft light background for contrast */
+    transition: all 0.3s ease;
 }
 
-    </style>
+
+/* Small badges */
+.status-badge {
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+    .sidebar {
+        min-width: 200px;
+        max-width: 200px;
+    }
+}
+</style>
+
 </head>
 <body>
 

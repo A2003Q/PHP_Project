@@ -77,12 +77,12 @@ if ($password !== "" && !preg_match('/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()
     <style>
         body {
           
-           background-color: #d8d0d0ff;
+           background-color: #f8f7fa;
             font-family: 'Poppins', sans-serif;
         }
         .profile-card {
             max-width: 500px;
-             background: linear-gradient(150deg, #807777ff, #575f92ff);
+             background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
             padding: 30px;
             margin: 60px auto;
             border-radius: 15px;
@@ -102,11 +102,11 @@ if ($password !== "" && !preg_match('/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()
             margin: auto;
         }
         .btn-edit {
-            background:  #d8d0d0ff;
+             background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
             color: #fff;
         }
         .btn-edit:hover {
-          background: linear-gradient(150deg, #807777ff, #575f92ff);
+          background-color: #3a3a5e;
         }
         /* === Override Bootstrap validation colors === */
 

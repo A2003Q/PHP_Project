@@ -41,10 +41,15 @@
     <style>
         body {
             background: #f8f9fa;
+            
         }
         .auth-card {
+              background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
             border: none;
             border-radius: 12px;
+            color: #fff;
+            height: 80vh;
+            
         }
         .auth-title {
             font-weight: 700;
@@ -54,7 +59,7 @@
             color: #fff;
         }
         .btn-main:hover {
-            background-color: #222;
+            background-color: color: #fff;
         }
     </style>
 </head>
@@ -66,17 +71,21 @@
         <div class="col-md-5">
             <div class="card auth-card shadow">
                 <div class="card-body p-4">
-                    <h3 class="text-center auth-title mb-4">Welcome Back</h3>
+                    <br>
+                    <h3 class="text-center auth-title mb-4">Welcome Back !</h3>
 
-                    <form method="POST" action="login-processing.php" id="loginForm">
+                    <br>
+                    <br>
+
+                    <form method="POST" action="login-processing.php" id="loginForm" autocomplete="off">
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" placeholder="you@example.com" id="email" name="email" required>
+                            <input type="email" class="form-control" placeholder="you@example.com" id="email" name="email" autocomplete="off" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Password</label>
-                            <input type="password" class="form-control" placeholder="••••••••" id="password" name="password" required>
+                            <input type="password" class="form-control" placeholder="••••••••" id="password" name="password" autocomplete="new-password" required>
                         </div>
 
                         <div class="d-grid mb-3">

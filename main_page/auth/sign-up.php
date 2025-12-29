@@ -31,12 +31,17 @@
 	<link rel="stylesheet" type="text/css" href="../css/util.css">
 	<link rel="stylesheet" type="text/css" href="../css/main.css">
     <style>
-        body {
+          body {
             background: #f8f9fa;
+            
         }
         .auth-card {
+              background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
             border: none;
             border-radius: 12px;
+            color: #fff;
+            height: 80vh;
+            
         }
         .auth-title {
             font-weight: 700;
@@ -46,7 +51,7 @@
             color: #fff;
         }
         .btn-main:hover {
-            background-color: #222;
+            background-color: color: #fff;
         }
     </style>
 </head>
@@ -58,6 +63,7 @@
         <div class="col-md-6">
             <div class="card auth-card shadow">
                 <div class="card-body p-4">
+                    
                     <h3 class="text-center auth-title mb-4">Create Account</h3>
 
                <form method="POST" action="sign-up-processing.php" id="signupForm">

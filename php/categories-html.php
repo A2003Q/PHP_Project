@@ -55,47 +55,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
 .page-header {  
-    background: linear-gradient(150deg, #807777ff, #575f92ff); 
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
     color: white; 
     padding: 15px 20px; 
     border-radius: 8px; 
     margin-bottom: 20px; 
 }
 .table thead {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
     color: #fff;
 }
 .table thead th {
-      background-color: #d8d0d0ff;
-       color: #1f1c1cff;
+       background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
+       color: #fff;
 }
 
 /* Add User Button */
 .btn-success {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
     border: none;
     color: #fff;
 }
 .btn-success:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+  background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
 }
 
 /* Action buttons (Edit & Delete) */
 .btn-primary {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
     border: none; /* remove edit border */
     color: #fff;
 }
 .btn-primary:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
 }
 .btn-danger {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
     border: 1px solid #fff; /* keep delete border */
     color: #fff;
 }
 .btn-danger:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
 }
 
 /* Card */
@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 .modal-content {
     border-radius: 12px;
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
     color: #fff;
 }
 .modal-body .form-control {

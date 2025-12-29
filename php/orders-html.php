@@ -29,47 +29,47 @@ $orders = $order->getAllOrders();
 .card { border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.08); }
 
 .page-header {  
-    background: linear-gradient(150deg, #807777ff, #575f92ff); 
-    color: white; 
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
+    color:  #fff; 
     padding: 15px 20px; 
     border-radius: 8px; 
     margin-bottom: 20px; 
 }
 .table thead {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     color: #fff;
 }
 .table thead th {
-      background-color: #d8d0d0ff;
-       color: #1f1c1cff;
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
+       color: #fff;
 }
 
 /* Add User Button */
 .btn-success {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     border: none;
     color: #fff;
 }
 .btn-success:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 }
 
 /* Action buttons (Edit & Delete) */
 .btn-primary {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     border: none; /* remove edit border */
     color: #fff;
 }
 .btn-primary:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 }
 .btn-danger {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     border: 1px solid #fff; /* keep delete border */
     color: #fff;
 }
 .btn-danger:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+ background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 }
 
 /* Card */
@@ -85,7 +85,7 @@ $orders = $order->getAllOrders();
 }
 .modal-content {
     border-radius: 12px;
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     color: #fff;
 }
 .modal-body .form-control {
@@ -105,6 +105,9 @@ $orders = $order->getAllOrders();
 .modal-footer .btn {
     color: #fff;
     border: none;
+}
+.modal-title{
+     color: #fff;
 }
 
 </style>

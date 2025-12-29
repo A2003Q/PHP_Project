@@ -4,7 +4,13 @@ session_start(); //A session allows you to store data on the server for a user, 
 require_once "../php/Admin.php";
 
 require_once "../SQL/Database.php";
+
 $conn = Database::getInstance()->getConnection();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../main_page/auth/login.php");
+    exit;
+}
 
 // COUNTS
 $userCount    = $conn->query("SELECT COUNT(*) AS total FROM users")->fetch_assoc()['total'];
@@ -32,10 +38,7 @@ while ($row = $statusResult->fetch_assoc()) {
 
 
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../main_page/auth/login.php");
-    exit;
-}
+
 
 $adminId = $_SESSION['user_id'];
 $adminModel = new Admin();
@@ -58,7 +61,7 @@ body {
 }
 
 #content h3 {
-    color: #575f92ff; /* one of your gradient colors */
+    color: #1f1f2e; /* one of your gradient colors */
     font-weight: bold;
 }
 
@@ -70,7 +73,7 @@ body {
 }
 
 .dashboard-card {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     color: #fff;
     padding: 30px;
     border-radius: 15px;
@@ -82,7 +85,7 @@ body {
 }
 .dashboard-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+    box-shadow: 0 15px 35px #3a3a5e(0,0,0,1);
 }
 .dashboard-card i {
     font-size: 40px;
@@ -132,7 +135,7 @@ body {
     display: block;
     margin-top: 10px;
     font-size: 14px;
-    color: #575f92ff;
+    color: #1f1f2e;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -211,11 +214,9 @@ body {
 
 <?php
 $statusColors = [
-    'Pending'    => '   #575f92ff',
-    'Processing' => ' #575f92ff',
-    'Shipped'    => ' #575f92ff',
-    'Delivered'  => ' #575f92ff',
-    'Cancelled'  => ' #575f92ff'
+    'pending'    => '   #575f92ff',
+    'paid' => ' #575f92ff'
+ 
 ];
 
 foreach ($orderStatusData as $status => $count):
@@ -254,8 +255,8 @@ foreach ($orderStatusData as $status => $count):
 
     // Create gradient (THIS is the key)
     const gradient = ctx.createLinearGradient(0, 0, 140, 140);
-    gradient.addColorStop(0, "#807777ff");
-    gradient.addColorStop(1, "#575f92ff");
+    gradient.addColorStop(0, "#efebebff");
+    gradient.addColorStop(1, "#34344dff");
 
     new Chart(ctx, {
         type: "doughnut",

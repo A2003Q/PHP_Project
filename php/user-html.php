@@ -65,47 +65,47 @@ $users = $usersClass->getAllUsers();
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
 .page-header {  
-    background: linear-gradient(150deg, #807777ff, #575f92ff); 
+      background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     color: white; 
     padding: 15px 20px; 
     border-radius: 8px; 
     margin-bottom: 20px; 
 }
 .table thead {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+       background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
     color: #fff;
 }
 .table thead th {
-      background-color: #d8d0d0ff;
-       color: #1f1c1cff;
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
+      color: #fff;
 }
 
 /* Add User Button */
 .btn-success {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+ background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     border: none;
     color: #fff;
 }
 .btn-success:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+   background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 }
 
 /* Action buttons (Edit & Delete) */
 .btn-primary {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e); 
     border: none; /* remove edit border */
     color: #fff;
 }
 .btn-primary:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 }
 .btn-danger {
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+    background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     border: 1px solid #fff; /* keep delete border */
     color: #fff;
 }
 .btn-danger:hover {
-    background: linear-gradient(150deg, #575f92ff, #807777ff);
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 }
 
 /* Card */
@@ -121,7 +121,7 @@ $users = $usersClass->getAllUsers();
 }
 .modal-content {
     border-radius: 12px;
-    background: linear-gradient(150deg, #807777ff, #575f92ff);
+     background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
     color: #fff;
 }
 .modal-body .form-control {
@@ -287,13 +287,13 @@ document.querySelectorAll('.editBtn').forEach(btn => {
 // Delete Button with SweetAlert
 document.querySelectorAll('.deleteBtn').forEach(btn => {
     btn.onclick = () => {
-        const id = btn.dataset.id;
+        const id = btn.dataset.id;  
         Swal.fire({
             title: 'Delete user?',
             text: 'This action cannot be undone!',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#4f3131',
+            confirmButtonColor: '#1f1f2e',
             confirmButtonText: 'Yes, delete'
         }).then(res => {
             if (res.isConfirmed) {
