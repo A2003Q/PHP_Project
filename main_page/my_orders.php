@@ -8,16 +8,21 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $conn = Database::getInstance()->getConnection();
 $stmt = $conn->prepare("
-   SELECT o.order_id, o.order_date, o.order_status, 
-       SUM(od.price_atpurchase) AS total_amount,
-       GROUP_CONCAT(p.product_name SEPARATOR ', ') AS products
+   SELECT 
+    o.order_id, 
+    o.order_date, 
+    o.order_status, 
+    SUM(od.price_atpurchase) AS total_amount,
+    GROUP_CONCAT(p.product_name SEPARATOR ', ') AS products,
+    GROUP_CONCAT(pi.image_url SEPARATOR ', ') AS product_images
 FROM orders o
 JOIN order_details od ON o.order_id = od.order_id
 JOIN product_variant v ON od.variant_id = v.variant_id
 JOIN products p ON v.product_id = p.product_id
+LEFT JOIN product_images pi ON p.product_id = pi.product_id
 WHERE o.user_id = ?
 GROUP BY o.order_id
-ORDER BY o.order_date DESC
+ORDER BY o.order_date DESC;
 ");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -119,6 +124,22 @@ header {
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 <!--===============================================================================================-->
 
+
+
+<style>.product-img-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.order-item-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    background-color: #f9f9f9;
+}</style>
 </head>
 <body>
 <?php include 'header-main.php'; ?>

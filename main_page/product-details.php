@@ -19,10 +19,13 @@ $colors = [];
     p.product_quantity,
     p.product_discount,
     v.size,
-    v.color
+    v.color,
+    pi.image_url
 FROM products p
 JOIN product_variant v ON p.product_id = v.product_id
-WHERE p.product_id = ?");
+LEFT JOIN product_images pi ON p.product_id = pi.product_id
+WHERE p.product_id = ?;
+");
 if(!$stmt){
 	die("Prepare failed: " . $conn->error);
 }
@@ -216,6 +219,87 @@ body {
     padding-top: 0 !important;
    
 }
+.product-image-container {
+    position: sticky;
+    top: 20px; /* Keeps image visible as user scrolls long descriptions */
+    transition: transform 0.3s ease;
+}
+
+#main-product-img {
+    object-fit: cover;
+    max-height: 600px;
+    width: 100%;
+}
+
+@media (max-width: 991px) {
+    .product-image-container {
+        position: relative;
+        top: 0;
+        margin-bottom: 30px;
+    }
+}
+.card-img-top-container {
+    width: 100%;
+    height: 350px; /* Adjust height as needed */
+    overflow: hidden;
+    background: #f8f8f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-img-top-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Keeps the product image from being cropped awkwardly */
+}
+/* Premium Card Layout */
+.product-card {
+    display: flex;
+    flex-direction: row;
+    border-radius: 24px;
+    background: #fff;
+    min-height: 600px;
+    border: none;
+}
+
+.product-image-section {
+    flex: 1.1; /* Image gets slightly more space */
+    background: #fdfdfd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.product-image-section img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.5s ease;
+}
+
+.product-image-section:hover img {
+    transform: scale(1.05); /* Soft zoom effect */
+}
+
+.product-info-section {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 991px) {
+    .product-card {
+        flex-direction: column;
+    }
+    .product-info-section {
+        padding: 30px;
+    }
+}
 </style>
 </head>
                     
@@ -233,49 +317,40 @@ if (!$variant_id || empty($variants)) {
     
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-5">
-            <div class="card product-card shadow-lg border-0">
-                <div class="card-body p-5">
-                    
-                    <span class="badge bg-light text-dark mb-2 px-3 py-2 rounded-pill border">New Arrival</span>
-                    
-                    <h2 class="display-6 fw-bold mb-2"><?= htmlspecialchars($variant['product_name']) ?></h2>
-                    
-                                <?php
-                if ($variant['product_discount'] > 0) {
+        <div class="col-lg-10">
+            <div class="card product-card shadow-lg">
+                
+                <div class="product-image-section">
+                    <?php 
+                        $imagePath = !empty($variant['image_url']) ? 'images/' . $variant['image_url'] : 'images/placeholder.jpg';
+                    ?>
+                    <img src="<?= $imagePath ?>" alt="<?= htmlspecialchars($variant['product_name']) ?>">
+                </div>
 
-                    $newPrice = $variant['product_price'] - 
-                                ($variant['product_price'] * $variant['product_discount'] / 100);
-
-                    echo "
-                    <div class='d-flex align-items-center mb-4'>
-                        <h3 class='text-dark fw-bold mb-0'>$ " . htmlspecialchars(number_format($newPrice, 2)) . "</h3>
-                        <span class='ms-3 text-muted text-decoration-line-through small'><del '>
-                            $ " . htmlspecialchars(number_format($variant['product_price'], 2)) . "
-                        </del></span>
-                    </div>";
+                <div class="product-info-section">
+                    <span class="text-uppercase tracking-widest text-muted mb-2" style="font-size: 0.75rem; letter-spacing: 2px;">Premium Collection</span>
                     
-                } else {
+                    <h2 class="fw-bold mb-3"><?= htmlspecialchars($variant['product_name']) ?></h2>
+                    
+                    <div class="mb-4">
+                        <?php if ($variant['product_discount'] > 0): 
+                            $newPrice = $variant['product_price'] - ($variant['product_price'] * $variant['product_discount'] / 100); ?>
+                            <h3 class="text-dark fw-bold d-inline">$ <?= number_format($newPrice, 2) ?></h3>
+                            <span class="ms-3 text-muted text-decoration-line-through"><del>$ <?= number_format($variant['product_price'], 2) ?></del></span>
+                        <?php else: ?>
+                            <h3 class="text-dark fw-bold">$ <?= number_format($variant['product_price'], 2) ?></h3>
+                        <?php endif; ?>
+                    </div>
 
-                    echo "
-                    <div class='d-flex align-items-center mb-4'>
-                        <h3 class='text-dark fw-bold mb-0'>
-                            $ " . htmlspecialchars(number_format($variant['product_price'], 2)) . "
-                        </h3>
-                    </div>";
-                }
-                ?>
-         
-
-                    <p class="text-muted mb-4 lh-lg">
+                    <p class="text-muted mb-5" style="line-height: 1.8;">
                         <?= htmlspecialchars($variant['product_description']) ?>
                     </p>
 
-                    <form action="shoping-cart.php" method="POST" >
+                    <form action="shoping-cart.php" method="POST">
                         <input type="hidden" name="product_id" value="<?= $variant['product_id'] ?>">
-                       
+
                         <div class="mb-4">
-                            <label class="form-label d-block fw-bold small text-uppercase mb-3">Select Size</label>
+                            <label class="small fw-bold text-uppercase mb-3 d-block">Size</label>
                             <div class="d-flex flex-wrap gap-2">
                                 <?php foreach ($sizes as $index => $size): ?>
                                     <input type="radio" name="size" value="<?= $size ?>" id="size-<?= $index ?>" class="size-option" <?= $index === 0 ? 'checked' : '' ?>>
@@ -284,49 +359,37 @@ if (!$variant_id || empty($variants)) {
                             </div>
                         </div>
 
-                        <div class="mb-5">
-                            <label class="form-label d-block fw-bold small text-uppercase mb-3">Color Choice</label>
+                        <div class="mb-4">
+                            <label class="small fw-bold text-uppercase mb-3 d-block">Color</label>
                             <div class="d-flex flex-wrap">
                                 <?php foreach ($colors as $index => $color): ?>
                                     <input type="radio" name="color" value="<?= $color ?>" id="color-<?= $index ?>" class="color-option" <?= $index === 0 ? 'checked' : '' ?>>
-                                    <label for="color-<?= $index ?>" class="color-label" style="background-color: <?= htmlspecialchars($color) ?>;" title="<?= htmlspecialchars($color) ?>"></label>
+                                    <label for="color-<?= $index ?>" class="color-label" style="background-color: <?= htmlspecialchars($color) ?>;"></label>
                                 <?php endforeach; ?>
                             </div>
                         </div>
-<div class="mb-5">
-    <label class="form-label d-block fw-bold small text-uppercase mb-3">Quantity</label>
-    
-    <div class="qty-counter">
-        <button type="button" class="qty-btn" onclick="changeQty(-1)">
-            <i class="fa fa-minus"></i>
-        </button>
 
-        <input type="text" 
-               id="display-qty" 
-               name="quantity" 
-               value="1" 
-               class="qty-input-readonly" 
-               readonly>
+                        <div class="row align-items-center mt-5">
+                            <div class="col-auto">
+                                <div class="qty-counter">
+                                    <button type="button" class="qty-btn" onclick="changeQty(-1)"><i class="fa fa-minus"></i></button>
+                                    <input type="text" id="display-qty" name="quantity" value="1" class="qty-input-readonly" readonly>
+                                    <button type="button" class="qty-btn" onclick="changeQty(1)"><i class="fa fa-plus"></i></button>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-add-cart w-100" name="add-to-cart">
+                                    ADD TO CART
+                                </button>
+                            </div>
+                        </div>
 
-        <button type="button" class="qty-btn" onclick="changeQty(1)">
-            <i class="fa fa-plus"></i>
-        </button>
-    </div>
-    
-    <small class="text-muted mt-2 d-block px-2">
-        Only <?= (int)$variant['product_quantity'] ?> left in stock
-    </small>
-</div>
-                        <div class="d-grid gap-3">
-                            <button type="submit" class="btn btn-add-cart" name="add-to-cart">
-                                <i class="fa fa-shopping-cart me-2"></i> ADD TO CART
-                            </button>
-                            <a href="product.php" class="btn btn-link text-muted text-decoration-none small mt-2">
-                                <i class="fa fa-arrow-left"></i> Continue Shopping
+                        <div class="text-center mt-4">
+                            <a href="product.php" class="text-muted small text-decoration-none">
+                                <i class="fa fa-long-arrow-left me-2"></i> Back to Shop
                             </a>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
