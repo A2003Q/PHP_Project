@@ -45,7 +45,7 @@ if ($result->num_rows === 1) {
         }
 
         .profile-card {
-            background-color: #CDB6B6;
+            background-color: #3a3a5e;
             /* The dusty rose/mauve color from image */
             width: 100%;
             max-width: 900px;
@@ -67,7 +67,7 @@ if ($result->num_rows === 1) {
         .profile-icon {
             width: 70px;
             height: 70px;
-            background-color: #4A5568;
+            background-color: #3a3a5e;
             /* Dark grey circle background */
             border-radius: 50%;
             display: flex;
@@ -124,9 +124,9 @@ if ($result->num_rows === 1) {
         }
 
         .btn-edit {
-            background-color: #7A2E2E;
+            background-color: #ffffff;
             /* Dark reddish brown button */
-            color: white;
+            color:  #3a3a5e;
             border: none;
             border-radius: 10px;
             padding: 10px 40px;
@@ -139,7 +139,7 @@ if ($result->num_rows === 1) {
 
         .btn-edit:hover {
             color: white;
-            background-color: #5f2424;
+            background-color: #3a3a5e;
             opacity: 0.9;
         }
 
