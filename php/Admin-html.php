@@ -139,7 +139,7 @@ if ($password !== "" && !preg_match('/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()
 } 
 
 .text-muted{
-    color:#ffffff !important;
+    color: #ffffff !important;
 }
 
     </style>
