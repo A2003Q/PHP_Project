@@ -40,16 +40,26 @@ case 'add':
 
 
 
-        case 'edit':
-            $productsClass->updateProduct(
-                $_POST['id'],
-                $_POST['name'],
-                $_POST['price'],
-                $_POST['description'],
-                $_POST['quantity'],
-                $_POST['discount']
-            );
-            break;
+    case 'edit':
+    $productsClass->updateProduct(
+        $_POST['id'],
+        $_POST['name'],
+        $_POST['price'],
+        $_POST['description'],
+        $_POST['quantity'],
+        $_POST['discount']
+    );
+
+ // 🔥 update categories ONLY if user submitted them
+if (array_key_exists('categories_id', $_POST)) {
+    $productsClass->updateProductCategories(
+        $_POST['id'],
+        $_POST['categories_id']
+    );
+}
+
+    break;
+
 
         case 'delete':
             $productsClass->deleteProduct($_POST['id']);
@@ -425,6 +435,26 @@ background: linear-gradient(180deg, #1f1f2e, #3a3a5e);
 <input type="hidden" name="id" id="editId">
 <div class="modal-content p-3">
 <input name="name" id="editName" class="form-control mb-2" required>
+<div class="mb-2">
+    <label class="form-label">Category :</label>
+    <div>
+        <?php
+        $categoriesResult = $categoriesClass->getAllCategories();
+        while ($c = $categoriesResult->fetch_assoc()):
+        ?>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input editCategory"
+                       type="checkbox"
+                       name="categories_id[]"
+                       value="<?= $c['categories_id'] ?>">
+                <label class="form-check-label">
+                    <?= htmlspecialchars($c['categories_name']) ?>
+                </label>
+            </div>
+        <?php endwhile; ?>
+    </div>
+</div>
+
 <input name="price" id="editPrice" class="form-control mb-2" required>
 <textarea name="description" id="editDesc" class="form-control mb-2"></textarea>
 <input name="quantity" id="editQty" class="form-control mb-2" required>

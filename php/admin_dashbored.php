@@ -125,7 +125,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -60%);
-    color: #ffffff; /* FIXED */
+    color: #1f1f2e; /* FIXED */
     font-size: 26px;
     font-weight: bold;
 }

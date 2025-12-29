@@ -40,6 +40,22 @@ class Products extends CRUD {
     $stmt->bind_param("ii", $productId, $categoryId);
     $stmt->execute();
 }
+public function updateProductCategories($productId, $categoriesIds) {
+    // 1️⃣ delete old categories
+    $stmt = $this->conn->prepare(
+        "DELETE FROM product_categories WHERE product_id = ?"
+    );
+    $stmt->bind_param("i", $productId);
+    $stmt->execute();
+
+    // 2️⃣ insert new categories
+    if (!empty($categoriesIds)) {
+        foreach ($categoriesIds as $catId) {
+            $this->addProductCategory($productId, $catId);
+        }
+    }
+}
+
 
 
     public function deleteProduct($id) {
